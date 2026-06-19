@@ -1206,7 +1206,7 @@ async function doSignup(){
   const code=genCode(n);
   const {data,error}=await db.auth.signUp({email:e,password:p});
   if(error){err.textContent=error.message;err.classList.add('on');btn.disabled=false;btn.textContent='Créer mon compte';return;}
-  await db.from('user_profiles').insert({id:data.user.id,name:n,city:c,code});
+  await db.from('user_profiles').insert({id:data.user.id,name:n,city:c,code,email:e});
   btn.disabled=false;btn.textContent='Créer mon compte';
   toast('Compte créé !');show('s-login');
 }
