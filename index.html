@@ -10,7 +10,7 @@
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <title>Letters</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400;1,500&family=DM+Sans:wght@300;400;500&family=Lora:ital,wght@0,400;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Nunito:wght@300;400;500&family=Spectral:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400;1,500&family=DM+Sans:wght@300;400;500&family=Lora:ital,wght@0,400;0,600;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Nunito:wght@300;400;500&family=Spectral:ital,wght@0,400;1,400&family=EB+Garamond:ital,wght@0,400;1,400&family=Libre+Baskerville:ital,wght@0,400;1,400&family=Josefin+Sans:wght@300;400&family=Raleway:wght@300;400&family=Caveat:wght@400;500&family=Dancing+Script:wght@400;500&family=Sacramento&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -321,6 +321,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .fmt-select{border:1px solid var(--border-med);border-radius:8px;padding:4px 6px;font-size:12px;font-family:var(--sans);background:var(--bg);color:var(--text);outline:none;cursor:pointer}
 .cv-editor{flex:1;min-height:55vh;font-family:var(--serif);font-size:17px;line-height:2.1;color:var(--text);outline:none;caret-color:var(--a);padding:4px 0}
 .cv-editor:empty:before{content:attr(data-placeholder);color:var(--text3);pointer-events:none;font-style:italic}
+.cv-editor p{margin:0;padding:0}
+.cv-editor br{display:block;content:'';margin:0}
 
 /* AFFICHAGE FORMATAGE DANS LES LETTRES */
 .lv-text b,.lv-text strong{font-weight:700}
@@ -424,9 +426,196 @@ button, a { touch-action: manipulation; }
   .app { height: 100dvh; }
 }
 
+/* Photos inline dans l'éditeur */
+/* Photos inline dans l'éditeur */
+.inline-photo-block{margin:6px 0;position:relative;user-select:none;display:block;width:100%;clear:both}
+.inline-photo-block.pos-left{float:left;width:45%;margin:0 10px 4px 0}
+.inline-photo-block.pos-right{float:right;width:45%;margin:0 0 4px 10px}
+.inline-photo-block.pos-center{display:block;float:none;margin:6px auto;width:55%}
+/* Duo */
+.iph-duo-wrapper{display:grid;grid-template-columns:1fr 1fr;gap:3px;border-radius:10px;overflow:hidden;width:100%}
+.iph-duo-wrapper>div{aspect-ratio:1;position:relative;background-size:cover;background-position:center}
+/* Frame solo */
+.iph-frame{width:100%;aspect-ratio:1;border-radius:10px;overflow:hidden;position:relative}
+.iph-frame .iph-bg{width:100%;height:100%;background-size:cover;background-position:center 50%;background-repeat:no-repeat;position:absolute;inset:0}
+/* Overlay controls — éditeur seulement */
+.iph-overlay{position:absolute;inset:0;border-radius:10px}
+.iph-pos{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;gap:3px;background:rgba(0,0,0,.28);border-radius:20px;padding:3px 6px;backdrop-filter:blur(4px)}
+.iph-pos button{background:none;border:none;color:rgba(255,255,255,.65);font-size:13px;cursor:pointer;padding:2px 5px;border-radius:12px;transition:all .15s;line-height:1}
+.iph-pos button.on{background:rgba(255,255,255,.28);color:#fff}
+.iph-rm{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.4);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
+.iph-controls{display:flex;flex-direction:column;gap:2px;margin-top:3px}
+.iph-slider-row{display:flex;align-items:center;gap:5px}
+.iph-slider-row span{font-size:9px;color:var(--text3);width:14px;text-align:center}
+.iph-slider-row input[type=range]{flex:1;-webkit-appearance:none;height:2px;background:var(--am);border-radius:2px;outline:none;cursor:pointer}
+.iph-slider-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--a);cursor:pointer}
+/* Caption */
+.iph-caption{font-size:10px;color:var(--text3);font-style:italic;border:none;outline:none;background:transparent;width:100%;font-family:var(--serif);display:block;padding:1px 0;margin-top:3px;box-sizing:border-box}
+.iph-caption::placeholder{color:var(--text3)}
+.iph-caption-text{font-size:10px;color:#A8A09A;font-style:italic;display:block;margin-top:3px;text-align:center;clear:both}
+.iph-frame{width:100%;aspect-ratio:1;border-radius:10px;overflow:hidden;position:relative}
+.iph-frame .iph-bg{width:100%;height:100%;background-size:cover;background-position:center 50%;background-repeat:no-repeat;position:absolute;inset:0}
+.iph-overlay{position:absolute;inset:0;border-radius:10px}
+.iph-pos{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;gap:3px;background:rgba(0,0,0,.28);border-radius:20px;padding:3px 6px;backdrop-filter:blur(4px)}
+.iph-pos button{background:none;border:none;color:rgba(255,255,255,.65);font-size:13px;cursor:pointer;padding:2px 5px;border-radius:12px;transition:all .15s;line-height:1}
+.iph-pos button.on{background:rgba(255,255,255,.28);color:#fff}
+.iph-rm{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.4);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
+.iph-controls{display:flex;flex-direction:column;gap:2px;margin-top:3px}
+.iph-slider-row{display:flex;align-items:center;gap:5px}
+.iph-slider-row span{font-size:9px;color:var(--text3);width:14px;text-align:center}
+.iph-slider-row input[type=range]{flex:1;-webkit-appearance:none;height:2px;background:var(--am);border-radius:2px;outline:none;cursor:pointer}
+.iph-slider-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--a);cursor:pointer}
+input[type=range].iph-zoom-v::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--a);cursor:pointer}
+.iph-caption{font-size:10px;color:var(--text3);font-style:italic;border:none;outline:none;background:transparent;width:100%;font-family:var(--serif);display:block;padding:1px 0;margin-top:2px;box-sizing:border-box}
+.iph-caption::placeholder{color:var(--text3)}
+.inline-photo-trigger{display:flex;align-items:center;gap:8px;margin:4px 0;opacity:0;transition:opacity .2s;pointer-events:none;clear:both}
+.inline-photo-trigger.visible{opacity:1;pointer-events:auto}
+.inline-photo-trigger hr{flex:1;border:none;border-top:1px dashed var(--am);margin:0}
+.inline-photo-trigger button{background:none;border:1px solid var(--am);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--text3);cursor:pointer;font-family:var(--sans);white-space:nowrap}
+.inline-photo-trigger button:hover{background:var(--al);color:var(--ad)}
+#pc-crop-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--a);cursor:pointer}
+;align-items:center;gap:8px;margin:8px 0;opacity:0;transition:opacity .2s;pointer-events:none}
+.inline-photo-trigger.visible{opacity:1;pointer-events:auto}
+.inline-photo-trigger hr{flex:1;border:none;border-top:1px dashed var(--am);margin:0}
+.inline-photo-trigger button{background:none;border:1px solid var(--am);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--text3);cursor:pointer;font-family:var(--sans);white-space:nowrap}
+.inline-photo-trigger button:hover{background:var(--al);color:var(--ad)}
+
+/* ONBOARDING */
+#onboarding{position:fixed;inset:0;background:var(--bg);z-index:4000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 32px 48px}
+#onboarding.on{display:flex}
+.ob-screens{position:relative;width:100%;max-width:340px;flex:1;display:flex;align-items:center}
+.ob-sc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:0;opacity:0;transform:translateX(40px);transition:opacity .35s ease,transform .35s ease;pointer-events:none}
+.ob-sc.on{opacity:1;transform:translateX(0);pointer-events:auto}
+.ob-sc.exit{opacity:0;transform:translateX(-40px)}
+.ob-logo{font-family:var(--serif);font-size:28px;font-style:italic;color:var(--a);margin-bottom:32px}
+.ob-icon{font-size:56px;margin-bottom:24px;line-height:1}
+.ob-h{font-family:var(--serif);font-size:22px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:14px}
+.ob-p{font-size:14px;color:var(--text2);line-height:1.75;max-width:260px}
+.ob-unlock{display:flex;flex-direction:column;gap:9px;width:100%;margin-top:8px}
+.ob-ul-item{display:flex;align-items:center;gap:10px;background:var(--al);border-radius:10px;padding:10px 14px;text-align:left}
+.ob-ul-icon{font-size:15px}
+.ob-ul-text{font-size:13px;color:var(--ad);font-weight:500}
+.ob-ul-badge{margin-left:auto;font-size:10px;color:var(--a);background:#fff;border-radius:20px;padding:2px 8px;font-weight:500}
+.ob-bottom{display:flex;flex-direction:column;align-items:center;gap:16px;width:100%;max-width:340px}
+.ob-dots{display:flex;gap:6px}
+.ob-dot{height:6px;border-radius:3px;background:var(--am);transition:all .3s ease}
+.ob-dot.on{background:var(--a);width:18px!important}
+.ob-actions{display:flex;align-items:center;gap:14px}
+.ob-next{background:var(--a);color:#fff;border:none;border-radius:30px;padding:13px 32px;font-size:15px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:opacity .15s}
+.ob-next:hover{opacity:.88}
+.ob-skip{background:none;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:var(--sans);padding:8px}
+
+/* DRAWING CANVAS */
+.draw-dot{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color .15s;flex-shrink:0}
+.draw-dot.active{border-color:var(--text)}
+.draw-size{background:#f0ebe5;border:none;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;color:var(--text2);font-family:var(--sans)}
+.draw-size.active{background:var(--a);color:#fff}
+.draw-tool{background:#f0ebe5;border:none;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;color:var(--text2);font-family:var(--sans)}
+.draw-tool.active{background:var(--text);color:#fff}
+
+/* ANIMATION ENVOI */
+#send-anim{position:fixed;inset:0;background:var(--bg);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px}
+#send-anim.on{display:flex}
+#send-anim .sa-env{font-size:80px;line-height:1}
+#send-anim .sa-env.fly{animation:saFly .9s cubic-bezier(.4,0,.2,1) forwards}
+#send-anim .sa-text{font-family:var(--serif);font-size:18px;font-style:italic;color:var(--text2);opacity:0}
+#send-anim .sa-text.fade{animation:saFade .9s ease forwards}
+@keyframes saFly{
+  0%{transform:translateY(0) scale(1) rotate(-5deg);opacity:1}
+  30%{transform:translateY(-20px) scale(1.15) rotate(5deg);opacity:1}
+  100%{transform:translateY(-120vh) scale(.4) rotate(-10deg);opacity:0}
+}
+@keyframes saFade{
+  0%{opacity:0;transform:translateY(8px)}
+  30%{opacity:1;transform:translateY(0)}
+  80%{opacity:1}
+  100%{opacity:0}
+}
+
+/* TUTORIEL */
+#tuto-overlay{position:fixed;inset:0;z-index:8000;display:none;flex-direction:column;justify-content:flex-end;padding:16px;gap:12px;pointer-events:none}
+#tuto-overlay.on{display:flex;pointer-events:auto}
+#tuto-spotlight{position:fixed;border-radius:16px;box-shadow:0 0 0 2000px rgba(0,0,0,.58);pointer-events:none;z-index:7999;transition:all .35s cubic-bezier(.4,0,.2,1);display:none}
+#tuto-spotlight.on{display:block}
+#tuto-overlay{position:fixed;inset:0;z-index:8000;display:none;pointer-events:none}
+#tuto-overlay.on{display:block;pointer-events:auto}
+.tuto-card{background:#fff;border-radius:16px;padding:14px;position:fixed;left:10px;width:210px;z-index:8001;transition:top .4s cubic-bezier(.34,1.1,.64,1),bottom .4s cubic-bezier(.34,1.1,.64,1);animation:tutoIn .3s ease;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+@keyframes tutoIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes tutoFadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.tuto-step-label{font-size:9px;color:var(--a);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+.tuto-title{font-family:var(--serif);font-size:14px;font-weight:600;color:var(--text);margin-bottom:5px;line-height:1.3}
+.tuto-desc{font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:10px}
+.tuto-actions{display:flex;align-items:center;justify-content:space-between}
+.tuto-skip-btn{background:none;border:none;font-size:10px;color:var(--text3);cursor:pointer;font-family:var(--sans);padding:2px}
+.tuto-next-btn{background:var(--a);color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:11px;font-weight:500;cursor:pointer;font-family:var(--sans)}
+.tuto-dots{display:flex;gap:4px;align-items:center}
+.tuto-dot{height:5px;border-radius:3px;background:var(--am);transition:all .3s}
+.tuto-dot.on{background:var(--a);width:14px!important}
+
 </style>
 </head>
 <body>
+
+<!-- ONBOARDING -->
+<div id="onboarding">
+  <div class="ob-screens">
+    <div class="ob-sc on" id="ob0">
+      <div class="ob-logo">Letters</div>
+      <div class="ob-icon">✉️</div>
+      <div class="ob-h">Un espace sans pression</div>
+      <div class="ob-p">Reprendre le temps de s'écrire vraiment.</div>
+    </div>
+    <div class="ob-sc" id="ob1">
+      <div class="ob-logo">Letters</div>
+      <div class="ob-icon">🌍</div>
+      <div class="ob-h">Écris quelque chose qui vaut la peine d'être lu</div>
+      <div class="ob-p">Pour celles et ceux qui se sont rencontrés loin, et qui veulent que ça dure.</div>
+    </div>
+    <div class="ob-sc" id="ob2">
+      <div class="ob-logo">Letters</div>
+      <div class="ob-h" style="margin-bottom:20px">Chaque lettre débloque quelque chose</div>
+      <div class="ob-unlock">
+        <div class="ob-ul-item"><span class="ob-ul-icon">✦</span><span class="ob-ul-text">Question du jour</span><span class="ob-ul-badge">8 lettres</span></div>
+        <div class="ob-ul-item"><span class="ob-ul-icon">🌶</span><span class="ob-ul-text">Question spicy</span><span class="ob-ul-badge">10 lettres</span></div>
+        <div class="ob-ul-item"><span class="ob-ul-icon">📷</span><span class="ob-ul-text">Notre album</span><span class="ob-ul-badge">15 lettres</span></div>
+        <div class="ob-ul-item"><span class="ob-ul-icon">📖</span><span class="ob-ul-text">Notre résumé</span><span class="ob-ul-badge">20 lettres</span></div>
+        <div class="ob-ul-item"><span class="ob-ul-icon">✿</span><span class="ob-ul-text">ABC Date</span><span class="ob-ul-badge">15 lettres</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="ob-bottom">
+    <div class="ob-dots">
+      <div class="ob-dot on" id="od0" style="width:18px"></div>
+      <div class="ob-dot" id="od1" style="width:6px"></div>
+      <div class="ob-dot" id="od2" style="width:6px"></div>
+    </div>
+    <div class="ob-actions">
+      <button class="ob-skip" id="ob-skip" onclick="finishOnboarding()">Passer</button>
+      <button class="ob-next" id="ob-next" onclick="obNext()">Suivant →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ANIMATION ENVOI -->
+<div id="send-anim">
+  <div class="sa-env" id="sa-env">✉️</div>
+  <div class="sa-text" id="sa-text">Lettre envoyée ✦</div>
+</div>
+
+<!-- TUTORIEL -->
+<div id="tuto-spotlight"></div>
+<div id="tuto-overlay">
+  <div class="tuto-card">
+    <div class="tuto-step-label" id="tuto-step-label">1 sur 5</div>
+    <div class="tuto-title" id="tuto-title">Écrire une lettre</div>
+    <div class="tuto-desc" id="tuto-desc"></div>
+    <div class="tuto-actions">
+      <button class="tuto-skip-btn" onclick="skipTuto()">Passer la démo</button>
+      <div class="tuto-dots" id="tuto-dots"></div>
+      <button class="tuto-next-btn" id="tuto-next-btn" onclick="tutoNext()">Suivant →</button>
+    </div>
+  </div>
+</div>
 
 <div id="loader"><div class="logo-big">Letters</div><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
 
@@ -434,27 +623,68 @@ button, a { touch-action: manipulation; }
 <div class="scr" id="s-login">
   <div class="auth-box">
     <div class="auth-logo">Letters</div>
-    <div class="auth-title">Connexion</div>
-    <div class="err-box" id="l-err"></div>
-    <div class="fld"><label>Email</label><input type="email" id="l-email" autocomplete="email"/></div>
-    <div class="fld"><label>Mot de passe</label><div class="pwd-wrap"><input type="password" id="l-pwd" autocomplete="current-password"/><button class="eye-btn" onclick="togglePwd('l-pwd',this)">👁</button></div></div>
-    <button class="btn p" onclick="doLogin()" id="l-btn">Se connecter</button>
-    <button class="link-btn" onclick="show('s-forgot')">Mot de passe oublié ?</button>
-    <div class="sw">Pas encore de compte ? <a onclick="show('s-signup')">Créer un compte</a></div>
-  </div>
-</div>
 
-<div class="scr" id="s-signup">
-  <div class="auth-box">
-    <div class="auth-logo">Letters</div>
-    <div class="auth-title">Créer un compte</div>
-    <div class="err-box" id="su-err"></div>
-    <div class="fld"><label>Prénom</label><input type="text" id="su-name" autocomplete="given-name"/></div>
-    <div class="fld"><label>Ville</label><input type="text" id="su-city"/></div>
-    <div class="fld"><label>Email</label><input type="email" id="su-email" autocomplete="email"/></div>
-    <div class="fld"><label>Mot de passe</label><div class="pwd-wrap"><input type="password" id="su-pwd" autocomplete="new-password"/><button class="eye-btn" onclick="togglePwd('su-pwd',this)">👁</button></div></div>
-    <button class="btn p" onclick="doSignup()" id="su-btn">Créer mon compte</button>
-    <div class="sw">Déjà un compte ? <a onclick="show('s-login')">Se connecter</a></div>
+    <!-- Onglets Créer / Connexion -->
+    <div style="display:flex;background:var(--surface2);border-radius:30px;padding:4px;gap:4px">
+      <button id="tab-signup" onclick="switchAuthTab('signup')" style="flex:1;padding:10px;border-radius:26px;border:none;background:var(--surface);color:var(--text);font-size:14px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:all .15s">Créer un compte</button>
+      <button id="tab-login" onclick="switchAuthTab('login')" style="flex:1;padding:10px;border-radius:26px;border:none;background:transparent;color:var(--text3);font-size:14px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:all .15s">Connexion</button>
+    </div>
+
+    <div class="err-box" id="l-err"></div>
+
+    <!-- Champ prénom (signup only) -->
+    <div id="auth-name-wrap" class="fld"><label>Prénom</label><input type="text" id="su-name" autocomplete="given-name" placeholder="Gabriel"/></div>
+    <div id="auth-city-wrap" class="fld"><label>Ville</label><input type="text" id="su-city" placeholder="Lille, France"/></div>
+
+    <!-- Switch Email / Téléphone -->
+    <div style="display:flex;background:var(--surface2);border-radius:30px;padding:3px;gap:3px">
+      <button id="method-email" onclick="switchAuthMethod('email')" style="flex:1;padding:8px;border-radius:26px;border:none;background:var(--surface);color:var(--text);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--sans)">Email</button>
+      <button id="method-phone" onclick="switchAuthMethod('phone')" style="flex:1;padding:8px;border-radius:26px;border:none;background:transparent;color:var(--text3);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--sans)">Téléphone</button>
+    </div>
+
+    <!-- Email fields -->
+    <div id="auth-email-fields" style="display:flex;flex-direction:column;gap:10px">
+      <div class="fld"><label>Email</label><input type="email" id="l-email" autocomplete="email"/></div>
+      <div class="fld"><label>Mot de passe</label><div class="pwd-wrap"><input type="password" id="l-pwd" autocomplete="current-password"/><button class="eye-btn" onclick="togglePwd('l-pwd',this)">👁</button></div></div>
+    </div>
+
+    <!-- Phone fields -->
+    <div id="auth-phone-fields" style="display:none;flex-direction:column;gap:10px">
+      <div id="phone-step-1" style="display:flex;flex-direction:column;gap:10px">
+        <div class="fld"><label>Numéro de téléphone</label><input type="tel" id="l-phone" placeholder="+33 6 12 34 56 78" autocomplete="tel"/></div>
+      </div>
+      <div id="phone-step-2" style="display:none;flex-direction:column;gap:10px">
+        <div class="auth-sub" id="phone-sent-msg">Code envoyé...</div>
+        <div class="fld"><label>Code reçu par SMS</label><input type="number" id="l-otp" placeholder="123456"/></div>
+        <button class="link-btn" onclick="resetPhoneStep()">← Changer de numéro</button>
+      </div>
+    </div>
+
+    <!-- Bouton principal -->
+    <button class="btn p" id="auth-main-btn" onclick="doAuthMain()">Créer mon compte</button>
+
+    <!-- Mot de passe oublié -->
+    <button class="link-btn" id="auth-forgot-btn" onclick="show('s-forgot')" style="display:none">Mot de passe oublié ?</button>
+
+    <!-- Séparateur -->
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <span style="font-size:12px;color:var(--text3)">ou</span>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+
+    <!-- Google + Apple -->
+    <div style="display:flex;gap:10px">
+      <button onclick="doGoogleLogin()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:11px;border-radius:30px;border:1px solid var(--border-med);background:var(--surface);cursor:pointer;font-size:13px;color:var(--text2);font-family:var(--sans)">
+        <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Google
+      </button>
+      <button onclick="doAppleLogin()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:11px;border-radius:30px;border:1px solid var(--border-med);background:var(--surface);cursor:pointer;font-size:13px;color:var(--text2);font-family:var(--sans)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        Apple
+      </button>
+    </div>
+
   </div>
 </div>
 
@@ -518,7 +748,7 @@ button, a { touch-action: manipulation; }
   <div id="selection-bar" style="display:none;position:sticky;top:0;background:var(--a);color:#fff;padding:10px 16px;align-items:center;justify-content:space-between;z-index:10;flex-shrink:0">
     <button onclick="toggleSelectionMode()" style="background:none;border:none;color:#fff;font-size:14px;cursor:pointer;font-family:var(--sans)">✕ Annuler</button>
     <span id="sel-count" style="font-size:13px;font-weight:500">0 sélectionnée</span>
-    <button onclick="deleteSelected()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--sans)">🗑 Masquer</button>
+    <button onclick="deleteSelected()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--sans)">🗑 Supprimer</button>
   </div>
   <div class="app-body" id="app-body">
     <div class="mailbox" id="mailbox-list"></div>
@@ -541,7 +771,7 @@ button, a { touch-action: manipulation; }
   </div>
   <div class="lv-footer">
     <button class="lv-close-btn" onclick="closeLetter()">Fermer</button>
-    <button class="lv-reply-btn" onclick="closeLetter();openCompose()">Répondre ↩</button>
+    <button class="lv-reply-btn" onclick="const l=currentLetter;closeLetter();openCompose(l)">Répondre ↩</button>
   </div>
 </div>
 
@@ -572,14 +802,87 @@ button, a { touch-action: manipulation; }
       <option value="17px">Normal</option>
       <option value="22px">Grand</option>
     </select>
+    <select class="fmt-select" onchange="fmtFont(this.value);this.selectedIndex=0">
+      <option value="">Police</option>
+      <optgroup label="Empattement">
+        <option value="'Playfair Display',Georgia,serif">Élégant</option>
+        <option value="'Lora',Georgia,serif">Doux</option>
+        <option value="'EB Garamond',Georgia,serif">Classique</option>
+        <option value="'Cormorant Garamond',Georgia,serif">Cormorant</option>
+        <option value="'Crimson Text',Georgia,serif">Crimson</option>
+        <option value="'Spectral',Georgia,serif">Spectral</option>
+        <option value="'Libre Baskerville',Georgia,serif">Baskerville</option>
+      </optgroup>
+      <optgroup label="Sans empattement">
+        <option value="'DM Sans',system-ui,sans-serif">Moderne</option>
+        <option value="'Nunito',system-ui,sans-serif">Nunito</option>
+        <option value="'Josefin Sans',system-ui,sans-serif">Josefin Sans</option>
+        <option value="'Raleway',system-ui,sans-serif">Raleway</option>
+      </optgroup>
+      <optgroup label="Écriture">
+        <option value="'Caveat',cursive">Caveat ✍️</option>
+        <option value="'Dancing Script',cursive">Dancing Script ✍️</option>
+        <option value="'Sacramento',cursive">Sacramento ✍️</option>
+      </optgroup>
+    </select>
   </div>
+  <!-- Bandeau lettre reçue -->
+  <div id="cv-reply-banner" style="display:none;background:var(--al);border-bottom:1px solid var(--am);padding:10px 16px;cursor:pointer;flex-shrink:0" onclick="toggleReplyRef()">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:10px;color:var(--a);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px" id="cv-reply-label">En réponse à</div>
+        <div style="font-size:12px;color:var(--text2);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="cv-reply-preview"></div>
+      </div>
+      <span id="cv-reply-arrow" style="font-size:13px;color:var(--text3);transition:transform .2s;flex-shrink:0">∨</span>
+    </div>
+    <div id="cv-reply-expanded" style="max-height:0;overflow:hidden;transition:max-height .3s ease">
+      <div style="font-size:10px;color:var(--text3);margin-top:10px;margin-bottom:8px" id="cv-reply-date"></div>
+      <div style="font-family:var(--serif);font-size:13px;font-style:italic;color:var(--text2);line-height:1.85;max-height:180px;overflow-y:auto" id="cv-reply-body"></div>
+    </div>
+  </div>
+  <div id="cv-q-block" style="display:none;padding:0 16px"></div>
   <div class="cv-body" id="cv-body">
+    <div style="font-size:11px;color:var(--text3);margin-bottom:16px;letter-spacing:.01em" id="cv-date-line"></div>
+    <div style="font-family:var(--serif);font-size:15px;font-style:italic;color:var(--text3);margin-bottom:12px" id="cv-salut-pre"></div>
     <div class="cv-editor" id="cv-editor" contenteditable="true" data-placeholder="Commence ta lettre..."></div>
+    <div style="font-family:var(--serif);font-size:15px;font-style:italic;color:var(--text3);margin-top:12px" id="cv-sign-pre"></div>
     <div id="cv-photos-preview" style="display:flex;flex-wrap:wrap;gap:8px;padding:8px 0"></div>
   </div>
+  <input type="file" id="cv-inline-photo-input" accept="image/*" style="display:none" onchange="insertInlinePhoto(this)">
   <div class="cv-photo-bar">
-    <button class="cv-photo-btn" id="cv-photo-btn" onclick="document.getElementById('photo-input').click()">📎 Photo</button>
+    <button class="cv-photo-btn" onclick="showMediaChoice()">📎 Ajouter</button>
     <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="onPhotoSelect(this)" multiple/>
+    <!-- Choix média -->
+    <div id="media-choice" style="display:none;position:absolute;bottom:60px;left:12px;background:#fff;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,.12);padding:8px;z-index:100;flex-direction:column;gap:4px;min-width:160px">
+      <button onclick="pickMediaPhoto()" style="background:none;border:none;padding:10px 14px;font-size:14px;color:var(--text);cursor:pointer;text-align:left;border-radius:8px;font-family:var(--sans);display:flex;align-items:center;gap:10px;transition:background .1s" onmouseenter="this.style.background='var(--al)'" onmouseleave="this.style.background='none'">📷 <span>Photo</span></button>
+      <button onclick="pickMediaDraw()" style="background:none;border:none;padding:10px 14px;font-size:14px;color:var(--text);cursor:pointer;text-align:left;border-radius:8px;font-family:var(--sans);display:flex;align-items:center;gap:10px;transition:background .1s" onmouseenter="this.style.background='var(--al)'" onmouseleave="this.style.background='none'">✏️ <span>Dessin</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- DRAWING CANVAS MODAL -->
+<div id="draw-modal" style="position:fixed;inset:0;background:var(--bg);z-index:3000;display:none;flex-direction:column">
+  <div style="background:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;padding-top:max(12px,env(safe-area-inset-top))">
+    <button onclick="closeDrawModal()" style="background:none;border:none;font-size:14px;color:var(--text2);cursor:pointer;font-family:var(--sans)">Annuler</button>
+    <span style="font-family:var(--serif);font-size:16px;font-style:italic;color:var(--text)">Dessine quelque chose</span>
+    <button onclick="insertDrawing()" style="background:var(--a);color:#fff;border:none;border-radius:20px;padding:7px 16px;font-size:13px;cursor:pointer;font-family:var(--sans)">Insérer ↑</button>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;padding:12px;gap:10px;overflow:hidden">
+    <canvas id="draw-canvas" style="background:#fff;border-radius:12px;display:block;touch-action:none;box-shadow:0 1px 8px rgba(0,0,0,.08);width:100%;flex:1;cursor:crosshair"></canvas>
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#fff;border-radius:12px;flex-wrap:wrap">
+      <div class="draw-dot active" style="background:#1C1917" onclick="setDrawColor('#1C1917',this)"></div>
+      <div class="draw-dot" style="background:#C17A4A" onclick="setDrawColor('#C17A4A',this)"></div>
+      <div class="draw-dot" style="background:#5E8A6A" onclick="setDrawColor('#5E8A6A',this)"></div>
+      <div class="draw-dot" style="background:#5C6BAF" onclick="setDrawColor('#5C6BAF',this)"></div>
+      <div class="draw-dot" style="background:#C4717A" onclick="setDrawColor('#C4717A',this)"></div>
+      <div style="width:1px;height:18px;background:rgba(0,0,0,.1)"></div>
+      <button class="draw-size active" onclick="setDrawSize(2,this)">S</button>
+      <button class="draw-size" onclick="setDrawSize(5,this)">M</button>
+      <button class="draw-size" onclick="setDrawSize(10,this)">L</button>
+      <div style="width:1px;height:18px;background:rgba(0,0,0,.1)"></div>
+      <button class="draw-tool" id="draw-eraser" onclick="toggleDrawEraser(this)">⌫ Gomme</button>
+      <button onclick="clearDrawCanvas()" style="background:none;border:none;font-size:11px;color:var(--text3);cursor:pointer;margin-left:auto;font-family:var(--sans)">Effacer tout</button>
+    </div>
   </div>
 </div>
 
@@ -651,6 +954,10 @@ button, a { touch-action: manipulation; }
       </div>
     </div>
     <div style="font-size:12px;color:var(--text3);text-align:center">Appuie sur la photo pour choisir une image</div>
+    <div id="pc-crop-ctrl" style="display:none;align-items:center;gap:8px;margin-top:8px;padding:0 8px">
+      <span style="font-size:11px;color:var(--text3)">↕ Recadrer</span>
+      <input type="range" min="0" max="100" value="50" id="pc-crop-slider" style="flex:1;-webkit-appearance:none;height:3px;background:var(--am);border-radius:2px;outline:none;cursor:pointer" oninput="adjustPCCrop(this.value)"/>
+    </div>
     <input type="file" id="pc-photo-input" accept="image/*" style="display:none" onchange="onPCPhoto(this)"/>
   </div>
 </div>
@@ -660,7 +967,7 @@ button, a { touch-action: manipulation; }
   <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:500px;padding:8px 0 calc(16px + env(safe-area-inset-bottom))">
     <div style="width:36px;height:4px;background:var(--border-med);border-radius:99px;margin:12px auto 16px"></div>
     <button class="action-item" onclick="selectFromRow()">☑ Sélectionner</button>
-    <button class="action-item danger" onclick="maskFromRow()">🗑 Masquer cette lettre</button>
+    <button class="action-item danger" onclick="maskFromRow()">🗑 Supprimer cette lettre</button>
     <button class="action-item subtle" onclick="closeModal('m-row-menu')">Annuler</button>
   </div>
 </div>
@@ -669,7 +976,7 @@ button, a { touch-action: manipulation; }
 <div class="modal" id="m-letter-menu" onclick="maybeClose('m-letter-menu',event)" style="align-items:flex-end">
   <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:500px;padding:8px 0 calc(16px + env(safe-area-inset-bottom))">
     <div style="width:36px;height:4px;background:var(--border-med);border-radius:99px;margin:12px auto 16px"></div>
-    <button class="action-item danger" onclick="closeModal('m-letter-menu');askDeleteCurrent()">🗑 Masquer cette lettre</button>
+    <button class="action-item danger" onclick="closeModal('m-letter-menu');askDeleteCurrent()">🗑 Supprimer cette lettre</button>
     <button class="action-item" onclick="closeModal('m-letter-menu');openTrash()">📂 Voir la corbeille</button>
     <button class="action-item subtle" onclick="closeModal('m-letter-menu')">Annuler</button>
   </div>
@@ -683,6 +990,7 @@ button, a { touch-action: manipulation; }
       <div class="lv-from">Corbeille</div>
       <div class="lv-date" id="trash-count">—</div>
     </div>
+    <button id="empty-trash-btn" onclick="emptyTrash()" style="background:none;border:none;font-size:12px;color:#C4717A;cursor:pointer;font-family:var(--sans);padding:4px 8px;display:none">Vider</button>
   </div>
   <div class="app-body" id="trash-list" style="padding:0"></div>
 </div>
@@ -718,6 +1026,7 @@ button, a { touch-action: manipulation; }
     <div class="drawer-section">To Do</div>
     <button class="drawer-item" onclick="showPanel('todo')"><span class="drawer-icon">📝</span><span>Nos idées & envies</span></button>
     <button class="drawer-item" onclick="openPostcard()"><span class="drawer-icon">📮</span><span>Carte postale</span></button>
+    <button class="drawer-item" onclick="closeDrawer();showPanel('boite')"><span class="drawer-icon">💬</span><span>Boîte à questions</span></button>
     <button class="drawer-item" onclick="showPanel('carte')"><span class="drawer-icon">🌍</span><span>Notre carte</span></button>
     <div class="drawer-section">Fonctionnalités</div>
     <button class="drawer-item" onclick="showPanel('humeur')"><span class="drawer-icon">🌤</span><span>Humeur du jour</span><span class="drawer-lock" id="dk-humeur"></span></button>
@@ -783,9 +1092,9 @@ button, a { touch-action: manipulation; }
 
 <div class="modal" id="m-delete" onclick="maybeClose('m-delete',event)">
   <div class="modal-card">
-    <div class="modal-title">Masquer cette lettre ?</div>
+    <div class="modal-title">Supprimer cette lettre ?</div>
     <div class="warn-box">Masquée <strong>uniquement pour toi</strong> — l'autre la verra toujours. L'IA ne pourra plus l'utiliser pour "Notre histoire".</div>
-    <div class="modal-row"><button class="btn g" onclick="closeModal('m-delete')">Annuler</button><button class="btn" style="flex:1;background:#C4717A;color:#fff;border:none;border-radius:30px;padding:13px;font-size:15px;font-weight:500;cursor:pointer" onclick="confirmDelete()">Masquer</button></div>
+    <div class="modal-row"><button class="btn g" onclick="closeModal('m-delete')">Annuler</button><button class="btn" style="flex:1;background:#C4717A;color:#fff;border:none;border-radius:30px;padding:13px;font-size:15px;font-weight:500;cursor:pointer" onclick="confirmDelete()">Supprimer</button></div>
   </div>
 </div>
 
@@ -818,14 +1127,20 @@ button, a { touch-action: manipulation; }
     </div>
     <div><div class="set-sec">Police</div>
       <div class="font-grid">
-        <div class="fc on" data-font="playfair" onclick="pickFont(this)" style="font-family:'Playfair Display',serif">Élégant</div>
-        <div class="fc" data-font="lora" onclick="pickFont(this)" style="font-family:'Lora',serif">Doux</div>
+        <div class="fc on" data-font="playfair" onclick="pickFont(this)" style="font-family:'Playfair Display',serif;font-style:italic">Élégant</div>
+        <div class="fc" data-font="lora" onclick="pickFont(this)" style="font-family:'Lora',serif;font-style:italic">Doux</div>
+        <div class="fc" data-font="garamond" onclick="pickFont(this)" style="font-family:'EB Garamond',serif;font-style:italic">Classique</div>
+        <div class="fc" data-font="cormorant" onclick="pickFont(this)" style="font-family:'Cormorant Garamond',serif;font-style:italic">Cormorant</div>
+        <div class="fc" data-font="crimson" onclick="pickFont(this)" style="font-family:'Crimson Text',serif;font-style:italic">Crimson</div>
+        <div class="fc" data-font="spectral" onclick="pickFont(this)" style="font-family:'Spectral',serif;font-style:italic">Spectral</div>
+        <div class="fc" data-font="baskerville" onclick="pickFont(this)" style="font-family:'Libre Baskerville',serif;font-style:italic">Baskerville</div>
         <div class="fc" data-font="dm" onclick="pickFont(this)">Moderne</div>
-        <div class="fc" data-font="georgia" onclick="pickFont(this)" style="font-family:Georgia,serif">Classique</div>
-        <div class="fc" data-font="cormorant" onclick="pickFont(this)" style="font-family:'Cormorant Garamond',serif">Cormorant</div>
-        <div class="fc" data-font="crimson" onclick="pickFont(this)" style="font-family:'Crimson Text',serif">Crimson</div>
         <div class="fc" data-font="nunito" onclick="pickFont(this)" style="font-family:'Nunito',sans-serif">Nunito</div>
-        <div class="fc" data-font="spectral" onclick="pickFont(this)" style="font-family:'Spectral',serif">Spectral</div>
+        <div class="fc" data-font="josefin" onclick="pickFont(this)" style="font-family:'Josefin Sans',sans-serif;letter-spacing:.04em">Josefin</div>
+        <div class="fc" data-font="raleway" onclick="pickFont(this)" style="font-family:'Raleway',sans-serif;font-weight:300">Raleway</div>
+        <div class="fc" data-font="caveat" onclick="pickFont(this)" style="font-family:'Caveat',cursive;font-size:16px">Caveat ✍️</div>
+        <div class="fc" data-font="dancing" onclick="pickFont(this)" style="font-family:'Dancing Script',cursive">Dancing ✍️</div>
+        <div class="fc" data-font="sacramento" onclick="pickFont(this)" style="font-family:'Sacramento',cursive;font-size:18px">Sacramento ✍️</div>
       </div>
     </div>
     <div><div class="set-sec">Couleur</div>
@@ -842,6 +1157,21 @@ button, a { touch-action: manipulation; }
       <div class="set-preview"><div class="sp-name" id="sp-name">Letters</div><div class="sp-text">Le ciel ce soir était tellement beau...</div><div class="sp-sign" id="sp-sign">x</div></div>
     </div>
     <button class="btn p" onclick="saveSettings()">Sauvegarder</button>
+    <div><div class="set-sec">Notifications</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">
+        <span style="font-size:14px;color:var(--text2)">Nouvelle lettre reçue</span>
+        <button id="notif-toggle" onclick="toggleNotifications()" style="width:48px;height:28px;border-radius:14px;border:none;cursor:pointer;background:var(--border-med);position:relative;transition:background .2s">
+          <span id="notif-thumb" style="position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span>
+        </button>
+      </div>
+      <div id="notif-status" style="font-size:12px;color:var(--text3);margin-top:4px"></div>
+    </div>
+    <div><div class="set-sec">À propos</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <a href="https://letters-app.xyz/privacy" target="_blank" style="font-size:13px;color:var(--text2);text-decoration:none;display:flex;align-items:center;gap:6px">🔒 Politique de confidentialité</a>
+        <button onclick="askDeleteAccount()" style="background:none;border:none;font-size:13px;color:#A32D2D;cursor:pointer;text-align:left;padding:0;font-family:var(--sans)">🗑 Supprimer mon compte et mes données</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -855,7 +1185,7 @@ const db=supabase.createClient(SU,SK);
 let me=null,cs=null,lc=0,cq=null,rtCh=[],deleteId=null,isReset=false;
 const MAX=50,LK={humeur:5,question:8,playlist:12,album:15,abc:15,resume:20};
 const TH={terracotta:{a:'#C17A4A',l:'#FBF2EA',m:'#E8C4A0',d:'#8B5530'},blush:{a:'#C4717A',l:'#FBF0F1',m:'#EDBBBD',d:'#8B4A50'},sage:{a:'#5E8A6A',l:'#EDF4EF',m:'#B2D0B9',d:'#3A5E44'},indigo:{a:'#5C6BAF',l:'#EEF0FA',m:'#B3BAE0',d:'#3A4880'},plum:{a:'#8B5C8A',l:'#F5EEF5',m:'#D4B0D3',d:'#5E3A5D'},noir:{a:'#2C2C2C',l:'#F0EFED',m:'#C0BFBC',d:'#111111'}};
-const FT={playfair:"'Playfair Display',Georgia,serif",lora:"'Lora',Georgia,serif",dm:"'DM Sans',system-ui,sans-serif",georgia:"Georgia,serif",cormorant:"'Cormorant Garamond',Georgia,serif",crimson:"'Crimson Text',Georgia,serif",nunito:"'Nunito',system-ui,sans-serif",spectral:"'Spectral',Georgia,serif"};
+const FT={playfair:"'Playfair Display',Georgia,serif",lora:"'Lora',Georgia,serif",dm:"'DM Sans',system-ui,sans-serif",georgia:"Georgia,serif",garamond:"'EB Garamond',Georgia,serif",cormorant:"'Cormorant Garamond',Georgia,serif",crimson:"'Crimson Text',Georgia,serif",nunito:"'Nunito',system-ui,sans-serif",spectral:"'Spectral',Georgia,serif",baskerville:"'Libre Baskerville',Georgia,serif",josefin:"'Josefin Sans',system-ui,sans-serif",raleway:"'Raleway',system-ui,sans-serif",caveat:"'Caveat',cursive",dancing:"'Dancing Script',cursive",sacramento:"'Sacramento',cursive"};
 let curT='terracotta',curF='playfair';
 
 function applyT(t,f){const th=TH[t]||TH.terracotta;const r=document.documentElement;r.style.setProperty('--a',th.a);r.style.setProperty('--al',th.l);r.style.setProperty('--am',th.m);r.style.setProperty('--ad',th.d);r.style.setProperty('--serif',FT[f]||FT.playfair);}
@@ -915,7 +1245,8 @@ function closeSettings(){document.getElementById('settings').classList.remove('o
 function maybeCloseSettings(e){if(e.target===document.getElementById('settings'))closeSettings();}
 
 function genCode(n){return n.substring(0,3).toUpperCase().replace(/[^A-Z]/g,'X')+'-'+Math.floor(1000+Math.random()*9000);}
-function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));if(id)document.getElementById(id)?.classList.add('on');}
+function show(id){
+  if(id==='s-login'){setTimeout(initAuthScreen,50);}document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));if(id)document.getElementById(id)?.classList.add('on');}
 function hideLoader(){document.getElementById('loader').style.display='none';}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),3000);}
 function maybeClose(id,e){if(e?.target===document.getElementById(id))closeModal(id);}
@@ -923,23 +1254,147 @@ function closeModal(id){document.getElementById(id)?.classList.remove('on');}
 function togglePwd(id,btn){const i=document.getElementById(id);if(i.type==='password'){i.type='text';btn.textContent='🙈';}else{i.type='password';btn.textContent='👁';}}
 
 // AUTH
+
+// GOOGLE LOGIN
+
+// AUTH TAB & METHOD SWITCHING
+let authTab = 'signup';
+let authMethod = 'email';
+
+function switchAuthTab(tab){
+  authTab = tab;
+  const isSignup = tab === 'signup';
+  document.getElementById('tab-signup').style.background = isSignup ? 'var(--surface)' : 'transparent';
+  document.getElementById('tab-signup').style.color = isSignup ? 'var(--text)' : 'var(--text3)';
+  document.getElementById('tab-login').style.background = isSignup ? 'transparent' : 'var(--surface)';
+  document.getElementById('tab-login').style.color = isSignup ? 'var(--text3)' : 'var(--text)';
+  document.getElementById('auth-name-wrap').style.display = isSignup ? 'flex' : 'none';
+  document.getElementById('auth-city-wrap').style.display = isSignup ? 'flex' : 'none';
+  document.getElementById('auth-main-btn').textContent = isSignup ? 'Créer mon compte' : (authMethod === 'phone' ? 'Recevoir un code SMS' : 'Se connecter');
+  document.getElementById('auth-forgot-btn').style.display = isSignup ? 'none' : 'block';
+}
+
+function switchAuthMethod(method){
+  authMethod = method;
+  const isEmail = method === 'email';
+  document.getElementById('method-email').style.background = isEmail ? 'var(--surface)' : 'transparent';
+  document.getElementById('method-email').style.color = isEmail ? 'var(--text)' : 'var(--text3)';
+  document.getElementById('method-phone').style.background = isEmail ? 'transparent' : 'var(--surface)';
+  document.getElementById('method-phone').style.color = isEmail ? 'var(--text3)' : 'var(--text)';
+  document.getElementById('auth-email-fields').style.display = isEmail ? 'flex' : 'none';
+  document.getElementById('auth-phone-fields').style.display = isEmail ? 'none' : 'flex';
+  document.getElementById('auth-main-btn').textContent = authTab === 'signup' ? 'Créer mon compte' : (isEmail ? 'Se connecter' : 'Recevoir un code SMS');
+}
+
+async function doAuthMain(){
+  const err = document.getElementById('l-err');
+  err.classList.remove('on');
+  if(authMethod === 'phone'){
+    const step2 = document.getElementById('phone-step-2');
+    if(step2.style.display === 'flex'){
+      await doVerifyOtp();
+    } else {
+      await doPhoneLogin();
+    }
+    return;
+  }
+  if(authTab === 'signup'){
+    await doSignup();
+  } else {
+    await doLogin();
+  }
+}
+
+// Init auth screen
+function initAuthScreen(){
+  switchAuthTab('signup');
+  switchAuthMethod('email');
+}
+
+async function doGoogleLogin(){
+  try{
+    const {error}=await db.auth.signInWithOAuth({
+      provider:'google',
+      options:{redirectTo:window.location.origin}
+    });
+    if(error)throw error;
+  }catch(e){
+    const err=document.getElementById('l-err');
+    if(err){err.textContent=e.message;err.classList.add('on');}
+  }
+}
+
+// APPLE LOGIN
+async function doAppleLogin(){
+  try{
+    const {error}=await db.auth.signInWithOAuth({
+      provider:'apple',
+      options:{redirectTo:window.location.origin}
+    });
+    if(error)throw error;
+  }catch(e){
+    const err=document.getElementById('l-err');
+    if(err){err.textContent=e.message;err.classList.add('on');}
+  }
+}
+
+// SMS OTP
+async function doPhoneLogin(){
+  const btn=document.getElementById('l-phone-btn');
+  const phone=document.getElementById('l-phone').value.trim().replace(/\s/g,'');
+  if(!phone)return;
+  btn.disabled=true;btn.textContent='Envoi...';
+  try{
+    const {error}=await db.auth.signInWithOtp({phone});
+    if(error)throw error;
+    document.getElementById('phone-step-1').style.display='none';
+    document.getElementById('phone-step-2').style.display='flex';
+    document.getElementById('phone-sent-msg').textContent='Code envoyé au '+phone;
+  }catch(e){
+    const err=document.getElementById('l-err');
+    if(err){err.textContent=e.message;err.classList.add('on');}
+  }
+  btn.disabled=false;btn.textContent='Recevoir un code SMS';
+}
+
+async function doVerifyOtp(){
+  const btn=document.getElementById('l-otp-btn');
+  const phone=document.getElementById('l-phone').value.trim().replace(/\s/g,'');
+  const token=document.getElementById('l-otp').value.trim();
+  btn.disabled=true;btn.textContent='Vérification...';
+  try{
+    const {error}=await db.auth.verifyOtp({phone,token,type:'sms'});
+    if(error)throw error;
+  }catch(e){
+    const err=document.getElementById('l-err');
+    if(err){err.textContent=e.message;err.classList.add('on');}
+    btn.disabled=false;btn.textContent='Vérifier le code';
+  }
+}
+
+function resetPhoneStep(){
+  document.getElementById('phone-step-1').style.display='block';
+  document.getElementById('phone-step-2').style.display='none';
+  document.getElementById('l-otp').value='';
+}
+
 async function doSignup(){
-  const n=document.getElementById('su-name').value.trim(),c=document.getElementById('su-city').value.trim(),e=document.getElementById('su-email').value.trim(),p=document.getElementById('su-pwd').value;
-  const err=document.getElementById('su-err');err.classList.remove('on');
+  const n=document.getElementById('su-name').value.trim(),c=document.getElementById('su-city').value.trim(),e=document.getElementById('l-email').value.trim(),p=document.getElementById('l-pwd').value;
+  const err=document.getElementById('l-err');err.classList.remove('on');
   if(!n||!e||!p){err.textContent='Remplis tous les champs.';err.classList.add('on');return;}
   if(p.length<8){err.textContent='Mot de passe trop court (8 min).';err.classList.add('on');return;}
-  const btn=document.getElementById('su-btn');btn.disabled=true;btn.textContent='Création...';
+  const btn=document.getElementById('auth-main-btn');btn.disabled=true;btn.textContent='Création...';
   const code=genCode(n);
   const {data,error}=await db.auth.signUp({email:e,password:p});
   if(error){err.textContent=error.message;err.classList.add('on');btn.disabled=false;btn.textContent='Créer mon compte';return;}
-  await db.from('user_profiles').insert({id:data.user.id,name:n,city:c,code});
+  await db.from('user_profiles').insert({id:data.user.id,name:n,city:c,code,email:e});
   btn.disabled=false;btn.textContent='Créer mon compte';
-  toast('Compte créé !');show('s-login');
+  toast('Compte créé !');switchAuthTab('login');
 }
 async function doLogin(){
   const e=document.getElementById('l-email').value.trim(),p=document.getElementById('l-pwd').value;
   const err=document.getElementById('l-err');err.classList.remove('on');
-  const btn=document.getElementById('l-btn');btn.disabled=true;btn.textContent='Connexion...';
+  const btn=document.getElementById('auth-main-btn');btn.disabled=true;btn.textContent='Connexion...';
   const {data,error}=await db.auth.signInWithPassword({email:e,password:p});
   if(error){err.textContent='Email ou mot de passe incorrect.';err.classList.add('on');btn.disabled=false;btn.textContent='Se connecter';return;}
   btn.disabled=false;btn.textContent='Se connecter';
@@ -979,6 +1434,7 @@ async function showHome(){
   document.getElementById('uc-name').textContent=me.name;
   document.getElementById('uc-code').textContent=me.code;
   await loadSpaces();
+  initNotifications();
 }
 async function loadSpaces(){
   const el=document.getElementById('spaces-list');
@@ -1157,6 +1613,7 @@ function openSpace(sid,pid,pname,pcity,sname){
     loadLetters();
   }).catch(()=>loadLetters());
   setupRT();loadMoods();
+  setTimeout(startTuto, 1000);
 }
 function goHome(){
   rtCh.forEach(c=>db.removeChannel(c));rtCh=[];cs=null;lc=0;readIds.clear();
@@ -1205,11 +1662,26 @@ function selectFromRow(){
     selectionMode=true;
     const bar=document.getElementById('selection-bar');
     if(bar)bar.style.display='flex';
+    loadLetters(); // Premier chargement en mode sélection
+    return;
   }
   if(rowMenuId){
     selectedIds.add(rowMenuId);
-    loadLetters();
+    updateCheckUI(rowMenuId, true);
   }
+}
+
+function updateCheckUI(id, selected){
+  const row=document.getElementById('lr-'+id);
+  if(!row)return;
+  row.className=row.className.replace(' selected','')+(selected?' selected':'');
+  const check=row.querySelector('.lr-check');
+  if(check){
+    check.className='lr-check'+(selected?' checked':'');
+    check.innerHTML=selected?'✓':'';
+  }
+  const btn=document.getElementById('sel-count');
+  if(btn)btn.textContent=selectedIds.size+' sélectionnée'+(selectedIds.size>1?'s':'');
 }
 function toggleSelectionMode(){
   selectionMode=!selectionMode;
@@ -1223,9 +1695,7 @@ function toggleSelectLetter(id,e){
   e.stopPropagation();
   if(selectedIds.has(id))selectedIds.delete(id);
   else selectedIds.add(id);
-  const btn=document.getElementById('sel-count');
-  if(btn)btn.textContent=selectedIds.size+' sélectionnée'+(selectedIds.size>1?'s':'');
-  loadLetters();
+  updateCheckUI(id, selectedIds.has(id));
 }
 
 async function deleteSelected(){
@@ -1278,7 +1748,13 @@ function renderMailbox(letters){
       ?`onclick="toggleSelectLetter('${l.id}',event)"`
       :`onclick="openLetterById('${l.id}')"`;
     const isPC=l.type==='postcard';
-    return `<div class="letter-row${isPC?' postcard':''}${isUnread?' unread':''}${isSelected?' selected':''}" id="lr-${l.id}" ${clickHandler}>
+    const myColor=TH[me.color||'terracotta']||TH.terracotta;
+    const partnerFallbacks={'terracotta':'sage','blush':'indigo','sage':'terracotta','indigo':'blush','plum':'sage','noir':'blush'};
+    const partnerColorKey=me.color===cs.partner_color?(partnerFallbacks[me.color||'terracotta']||'sage'):(cs.partner_color||partnerFallbacks[me.color||'terracotta']||'sage');
+    const partnerColor=TH[partnerColorKey]||TH.sage;
+    const rowBg=mine?myColor.l:partnerColor.l;
+    const rowBorder=mine?myColor.a:partnerColor.a;
+    return `<div class="letter-row${isPC?' postcard':''}${isUnread?' unread':''}${isSelected?' selected':''}" id="lr-${l.id}" style="${!isUnread&&!isSelected?`background:${rowBg};border-left:3px solid ${rowBorder};`:''}" ${clickHandler}>
       ${selectionMode?`<div class="lr-check${isSelected?' checked':''}">${isSelected?'✓':''}</div>`:
         isPC&&l.photo_url?`<img class="pc-thumb" id="pc-thumb-${l.id}" src="" alt="postcard"/>`:
         `<div class="lr-av" style="background:${mine?TH[me.color||'terracotta']?.l||'var(--al)':TH[cs.partner_color||'sage']?.l||'#EDF4EF'};color:${mine?TH[me.color||'terracotta']?.d||'var(--ad)':TH[cs.partner_color||'sage']?.d||'#3A5E44'}">${avLetter}</div>`}
@@ -1291,7 +1767,7 @@ function renderMailbox(letters){
           </div>
         </div>
         <div class="lr-preview${isUnread?' lr-preview-bold':''}">${preview}</div>
-        <div class="lr-meta">${l.photo_url?'<span class="lr-tag">📎 Photo</span>':''}${l.hearts>0?`<span class="lr-tag">♥ ${l.hearts}</span>`:''}</div>
+        <div class="lr-meta">${l.photo_url?'<span class="lr-tag">📎 Photo</span>':''}${l.hearts>0?`<span class="lr-tag">♥ ${l.hearts}</span>`:''} ${mine&&l.read_at?'<span style="font-size:10px;color:var(--text3);margin-left:auto">Vu ✓</span>':mine&&!l.read_at?'<span style="font-size:10px;color:var(--text3);margin-left:auto">Envoyé</span>':''}</div>
       </div>
       ${!selectionMode?`<button onclick="event.stopPropagation();openRowMenu('${l.id}')" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:4px 8px;flex-shrink:0;min-width:36px;min-height:44px;display:flex;align-items:center;justify-content:center">⋯</button>`:''}
     </div>`;
@@ -1402,7 +1878,7 @@ async function confirmDelete(){
   await db.from('letters').update({hidden_for:cur}).eq('id',deleteId);
   deleteId=null;closeModal('m-delete');
   closeLetter();
-  toast('Lettre masquée — visible dans ta corbeille.');
+  toast('Lettre supprimée — visible dans ta corbeille.');
   await loadLetters();
 }
 
@@ -1412,11 +1888,12 @@ async function openTrash(){
   el.innerHTML='<div style="padding:20px;color:var(--text3);font-style:italic;font-size:14px">Chargement...</div>';
   document.getElementById('trash-view').classList.add('on');
   if(!cs)return;
-  // Récupérer toutes les lettres où hidden_for contient me.id
   const {data:r1}=await db.from('letters').select('*').eq('from_id',cs.partner_id).eq('to_id',me.id).contains('hidden_for',[me.id]).order('created_at',{ascending:false});
   const {data:r2}=await db.from('letters').select('*').eq('from_id',me.id).eq('to_id',cs.partner_id).contains('hidden_for',[me.id]).order('created_at',{ascending:false});
   const all=[...(r1||[]),...(r2||[])].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-  document.getElementById('trash-count').textContent=all.length+' lettre'+(all.length!==1?'s':'')+' masquée'+(all.length!==1?'s':'');
+  document.getElementById('trash-count').textContent=all.length+' lettre'+(all.length!==1?'s':'')+' supprimée'+(all.length!==1?'s':'');
+  const emptyBtn=document.getElementById('empty-trash-btn');
+  if(emptyBtn)emptyBtn.style.display=all.length?'block':'none';
   if(!all.length){
     el.innerHTML='<div style="text-align:center;padding:80px 20px;color:var(--text3);font-family:var(--serif);font-style:italic;font-size:16px">Ta corbeille est vide ✦</div>';
     return;
@@ -1452,6 +1929,20 @@ function closeTrash(){
   document.getElementById('trash-view').classList.remove('on');
 }
 
+async function emptyTrash(){
+  if(!cs)return;
+  if(!confirm('Vider définitivement la corbeille ?'))return;
+  const {data:r1}=await db.from('letters').select('id,hidden_for').eq('from_id',cs.partner_id).eq('to_id',me.id).contains('hidden_for',[me.id]);
+  const {data:r2}=await db.from('letters').select('id,hidden_for').eq('from_id',me.id).eq('to_id',cs.partner_id).contains('hidden_for',[me.id]);
+  const all=[...(r1||[]),...(r2||[])];
+  for(const l of all){
+    await db.from('letters').delete().eq('id',l.id);
+  }
+  toast('Corbeille vidée ✦');
+  await openTrash();
+  await loadLetters();
+}
+
 async function restoreLetter(id){
   const {data:l}=await db.from('letters').select('hidden_for').eq('id',id).single();
   const cur=(l?.hidden_for||[]).filter(uid=>uid!==me.id);
@@ -1483,19 +1974,74 @@ function fmtSize(size){
   const range=sel.getRangeAt(0);
   const span=document.createElement('span');
   span.style.fontSize=size;
-  range.surroundContents(span);
+  try{range.surroundContents(span);}catch(e){const f=range.extractContents();span.appendChild(f);range.insertNode(span);}
   document.getElementById('cv-editor').focus();
 }
 
-function openCompose(){
+function fmtFont(font){
+  if(!font)return;
+  const sel=window.getSelection();
+  if(!sel.rangeCount||sel.isCollapsed)return;
+  const range=sel.getRangeAt(0);
+  const span=document.createElement('span');
+  span.style.fontFamily=font;
+  try{range.surroundContents(span);}catch(e){const f=range.extractContents();span.appendChild(f);range.insertNode(span);}
+  document.getElementById('cv-editor').focus();
+}
+
+let cvReplyOpen=false;
+function toggleReplyRef(){
+  cvReplyOpen=!cvReplyOpen;
+  const exp=document.getElementById('cv-reply-expanded');
+  const arrow=document.getElementById('cv-reply-arrow');
+  exp.style.maxHeight=cvReplyOpen?'220px':'0';
+  arrow.style.transform=cvReplyOpen?'rotate(180deg)':'rotate(0deg)';
+}
+function openCompose(replyTo){
   document.getElementById('cv-title').textContent='À '+cs.partner_name;
   const editor=document.getElementById('cv-editor');
   if(editor)editor.innerHTML='';
   document.getElementById('cv-send-btn').disabled=false;
   photoFiles=[];
   renderPhotoPreviews();
+  // Date/heure automatique
+  const now=new Date();
+  const days=['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+  const months=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const city=me.city||'';
+  const dateLine=`${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()} · ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}${city?' · '+city:''}`;
+  const dateEl=document.getElementById('cv-date-line');
+  if(dateEl)dateEl.textContent=dateLine;
+  // Bandeau réponse
+  const banner=document.getElementById('cv-reply-banner');
+  cvReplyOpen=false;
+  const exp=document.getElementById('cv-reply-expanded');
+  const arrow=document.getElementById('cv-reply-arrow');
+  if(exp)exp.style.maxHeight='0';
+  if(arrow)arrow.style.transform='rotate(0deg)';
+  if(replyTo&&replyTo.from_id!==me?.id){
+    banner.style.display='block';
+    const fromName=replyTo.from_name||cs.partner_name;
+    document.getElementById('cv-reply-label').textContent='En réponse à '+fromName;
+    const bodyText=replyTo.body?replyTo.body.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim():'';
+    document.getElementById('cv-reply-preview').textContent='"'+bodyText.slice(0,80)+(bodyText.length>80?'...':'')+'"';
+    document.getElementById('cv-reply-body').innerHTML=replyTo.body||'';
+    const d=new Date(replyTo.created_at);
+    const partnerCity=cs.partner_city||'';
+    document.getElementById('cv-reply-date').textContent=`${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}${partnerCity?' · '+partnerCity:''}`;
+  } else {
+    banner.style.display='none';
+  }
+  // Formule d'ouverture et signature grisées
+  const salutEl=document.getElementById('cv-salut-pre');
+  const signEl=document.getElementById('cv-sign-pre');
+  const salutText=getSalut()||(cs.partner_name+',');
+  const signText=getSign()||'';
+  if(salutEl)salutEl.textContent=salutText;
+  if(signEl)signEl.textContent=signText;
   document.getElementById('compose-view').classList.add('on');
-  setTimeout(()=>document.getElementById('cv-editor')?.focus(),300);
+  setTimeout(()=>{document.getElementById('cv-editor')?.focus();initInlinePhotoTrigger();},300);
+  renderEditorQBlock();
 }
 
 function closeCompose(){
@@ -1504,11 +2050,83 @@ function closeCompose(){
 
 async function sendLetter(){
   const editor=document.getElementById('cv-editor');
-  const bodyHtml=editor?.innerHTML||'';
+  let bodyHtml=editor?.innerHTML||'';
   const bodyText=editor?.innerText?.trim()||'';
-  if(!bodyText){toast('Écris quelque chose d\'abord ✦');return;}
+  if(!bodyText&&!Object.keys(inlinePhotoFiles).length){toast('Écris quelque chose d\'abord ✦');return;}
   const btn=document.getElementById('cv-send-btn');btn.disabled=true;btn.textContent='Envoi...';
-  // Upload toutes les photos
+  // Upload photos inline
+  const inlineBlocks=editor.querySelectorAll('.inline-photo-block');
+  for(const block of inlineBlocks){
+    const id=block.dataset.file;
+    const drawUrl=block.dataset.drawingUrl;
+    if(drawUrl){
+      // Upload dessin
+      try{
+        const res=await fetch(drawUrl);
+        const blob=await res.blob();
+        const path=`${me.id}/${Date.now()}-draw.png`;
+        const {data}=await db.storage.from('photos').upload(path,blob,{contentType:'image/png'});
+        if(data){
+          const {data:sd}=await db.storage.from('photos').createSignedUrl(path,3600*24*365);
+          const bg=block.querySelector('.iph-bg');
+          if(bg)bg.style.backgroundImage=`url('${sd?.signedUrl||path}')`;
+          block.dataset.drawingUrl='';
+        }
+      }catch(e){console.warn('Drawing upload failed:',e);}
+    } else if(id){
+      const ph=inlinePhotoFiles[id];
+      if(ph){
+        try{
+          const compressed=await compressPhoto(ph.file);
+          const path=`${me.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
+          const {data}=await db.storage.from('photos').upload(path,compressed,{contentType:'image/jpeg'});
+          if(data){
+            const {data:sd}=await db.storage.from('photos').createSignedUrl(path,3600*24*365);
+            const publicUrl=sd?.signedUrl||path;
+            const bg=block.querySelector('.iph-bg');
+            if(bg){
+              const img=document.createElement('img');
+              img.src=publicUrl;
+              img.style.cssText=`width:100%;height:100%;object-fit:cover;position:absolute;inset:0;display:block`;
+              bg.replaceWith(img);
+            }
+          }
+        }catch(e){console.warn('Inline photo upload failed:',e);}
+      }
+    }
+  }
+  // Remove ALL editor UI elements - destinataire ne doit rien voir
+  editor.querySelectorAll('.iph-overlay,.iph-controls,.iph-slider-row,.iph-rm,.iph-remove,.iph-layout-choice,.inline-photo-trigger,.iph-duo-btn,.iph-pos').forEach(el=>el.remove());
+  editor.querySelectorAll('input[type=range]').forEach(el=>el.remove());
+  editor.querySelectorAll('span[style*="color:var(--text3)"]').forEach(el=>el.remove()); // zoom label
+  // Sauvegarder légendes et remplacer inputs par spans
+  editor.querySelectorAll('.inline-photo-block').forEach(b=>{
+    const cap=b.querySelector('.iph-caption');
+    if(cap){
+      const span=document.createElement('span');
+      span.className='iph-caption-text';
+      span.style.cssText='font-size:10px;color:#A8A09A;font-style:italic;display:block;margin-top:3px;text-align:center';
+      span.textContent=cap.value||'';
+      cap.replaceWith(span);
+    }
+    // Nettoyer le wrapper flex autour de photo+zoom
+    const flexWrap=b.querySelector('div[style*="display:flex;gap:5px"]');
+    if(flexWrap){
+      const frameDiv=flexWrap.querySelector('.iph-frame,.iph-duo-wrapper');
+      if(frameDiv){
+        const captionSpan=flexWrap.querySelector('.iph-caption-text');
+        b.innerHTML='';
+        b.appendChild(frameDiv);
+        if(captionSpan)b.appendChild(captionSpan);
+      }
+    }
+    b.contentEditable='inherit';
+    b.style.removeProperty('display');
+    b.style.removeProperty('float');
+  });
+  editor.querySelectorAll('.inline-photo-trigger').forEach(t=>t.remove());
+  bodyHtml=editor?.innerHTML||'';
+  // Upload photos standalone
   const uploadedPhotos=[];
   for(const p of photoFiles){
     try{
@@ -1531,12 +2149,349 @@ async function sendLetter(){
     hearts:0
   });
   btn.disabled=false;btn.textContent='Envoyer ↑';
+  // Marquer questions cochées comme répondues
+  const answeredIds=getSelectedBoiteIds();
+  for(const id of answeredIds){await markBoiteAnswered(id);}
   sendPushToPartner(bodyText);
   photoFiles=[];
+  inlinePhotoFiles={};
   renderPhotoPreviews();
   closeCompose();
-  toast('Lettre envoyée ✦');
+  const anim=document.getElementById('send-anim');
+  const env=document.getElementById('sa-env');
+  const txt=document.getElementById('sa-text');
+  env.classList.remove('fly');txt.classList.remove('fade');
+  anim.classList.add('on');
+  void env.offsetWidth;
+  env.classList.add('fly');txt.classList.add('fade');
+  setTimeout(()=>{anim.classList.remove('on');env.classList.remove('fly');txt.classList.remove('fade');},1200);
   await loadLetters();
+}
+
+// MEDIA CHOICE
+function showMediaChoice(){
+  const mc=document.getElementById('media-choice');
+  mc.style.display=mc.style.display==='flex'?'none':'flex';
+}
+function pickMediaPhoto(){
+  document.getElementById('media-choice').style.display='none';
+  document.getElementById('cv-inline-photo-input').click();
+}
+function pickMediaDraw(){
+  document.getElementById('media-choice').style.display='none';
+  openDrawModal();
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.cv-photo-bar'))document.getElementById('media-choice').style.display='none';
+});
+
+// DRAWING CANVAS
+let drawCtx=null,drawDrawing=false,drawColor='#1C1917',drawSize=2,drawEraser=false,drawLastX,drawLastY;
+
+function openDrawModal(){
+  const modal=document.getElementById('draw-modal');
+  modal.style.display='flex';
+  const canvas=document.getElementById('draw-canvas');
+  // Set canvas resolution
+  const w=canvas.offsetWidth||window.innerWidth-24;
+  const h=Math.max(window.innerHeight-220,200);
+  canvas.width=w*window.devicePixelRatio;
+  canvas.height=h*window.devicePixelRatio;
+  canvas.style.height=h+'px';
+  drawCtx=canvas.getContext('2d');
+  drawCtx.scale(window.devicePixelRatio,window.devicePixelRatio);
+  drawCtx.lineCap='round';drawCtx.lineJoin='round';
+  drawCtx.clearRect(0,0,canvas.width,canvas.height);
+  // Events
+  canvas.onmousedown=drawStart;canvas.onmousemove=drawMove;canvas.onmouseup=drawStop;
+  canvas.ontouchstart=drawStart;canvas.ontouchmove=drawMove;canvas.ontouchend=drawStop;
+}
+function closeDrawModal(){document.getElementById('draw-modal').style.display='none';}
+function getDrawPos(e){
+  const r=document.getElementById('draw-canvas').getBoundingClientRect();
+  const src=e.touches?e.touches[0]:e;
+  return[src.clientX-r.left,src.clientY-r.top];
+}
+function drawStart(e){
+  drawDrawing=true;
+  [drawLastX,drawLastY]=getDrawPos(e);
+  drawCtx.beginPath();
+  drawCtx.arc(drawLastX,drawLastY,(drawEraser?16:drawSize)/2,0,Math.PI*2);
+  drawCtx.fillStyle=drawEraser?'#fff':drawColor;
+  drawCtx.fill();
+  e.preventDefault();
+}
+function drawMove(e){
+  if(!drawDrawing)return;
+  const[x,y]=getDrawPos(e);
+  drawCtx.beginPath();drawCtx.moveTo(drawLastX,drawLastY);drawCtx.lineTo(x,y);
+  drawCtx.strokeStyle=drawEraser?'#fff':drawColor;
+  drawCtx.lineWidth=drawEraser?16:drawSize;
+  drawCtx.stroke();
+  [drawLastX,drawLastY]=[x,y];
+  e.preventDefault();
+}
+function drawStop(){drawDrawing=false;}
+function setDrawColor(c,el){drawColor=c;drawEraser=false;document.getElementById('draw-eraser').classList.remove('active');document.querySelectorAll('.draw-dot').forEach(d=>d.classList.remove('active'));el.classList.add('active');}
+function setDrawSize(s,el){drawSize=s;document.querySelectorAll('.draw-size').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
+function toggleDrawEraser(btn){drawEraser=!drawEraser;btn.classList.toggle('active',drawEraser);}
+function clearDrawCanvas(){if(drawCtx){const c=document.getElementById('draw-canvas');drawCtx.clearRect(0,0,c.width,c.height);}}
+function insertDrawing(){
+  const canvas=document.getElementById('draw-canvas');
+  const url=canvas.toDataURL('image/png');
+  closeDrawModal();
+  // Insérer comme bloc photo inline
+  const id='draw-'+Date.now();
+  const block=document.createElement('div');
+  block.className='inline-photo-block pos-center';
+  block.contentEditable='false';
+  block.dataset.drawingUrl=url;
+  block.dataset.caption='';
+  block.innerHTML=`
+    <div style="display:flex;gap:5px;align-items:flex-start">
+      <div style="flex:1;min-width:0">
+        <div class="iph-frame" id="frame-${id}">
+          <div class="iph-bg" style="background-image:url('${url}');background-size:contain;background-position:center;background-repeat:no-repeat;background-color:#fff"></div>
+          <div class="iph-overlay">
+            <div class="iph-pos">
+              <button onclick="setIphPos(this,'pos-left')">◀</button>
+              <button class="on" onclick="setIphPos(this,'pos-center')">●</button>
+              <button onclick="setIphPos(this,'pos-right')">▶</button>
+            </div>
+            <button class="iph-rm" onclick="this.closest('.inline-photo-block').remove()">✕</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <input class="iph-caption" placeholder="Légende..." type="text" oninput="this.closest('.inline-photo-block').dataset.caption=this.value"/>
+  `;
+  const editor=document.getElementById('cv-editor');
+  if(savedRange){
+    const sel=window.getSelection();sel.removeAllRanges();sel.addRange(savedRange);
+    savedRange.deleteContents();savedRange.insertNode(block);
+    const p=document.createElement('p');p.innerHTML='<br>';block.after(p);
+    const nr=document.createRange();nr.setStart(p,0);nr.collapse(true);sel.removeAllRanges();sel.addRange(nr);
+  } else {
+    editor.appendChild(block);
+    const p=document.createElement('p');p.innerHTML='<br>';editor.appendChild(p);
+  }
+}
+
+// PHOTOS INLINE dans l'éditeur
+let savedRange=null;
+
+function triggerInlinePhoto(){
+  // Sauvegarder la position du curseur
+  const sel=window.getSelection();
+  if(sel&&sel.rangeCount>0)savedRange=sel.getRangeAt(0).cloneRange();
+  document.getElementById('cv-inline-photo-input').click();
+}
+
+function toggleIphDuo(btn, id){
+  const block=btn.closest('.inline-photo-block');
+  const isDuo=block.dataset.duo==='1';
+  if(!isDuo){
+    const inp2=document.createElement('input');
+    inp2.type='file';inp2.accept='image/*';inp2.style.display='none';
+    inp2.onchange=function(){
+      const f2=this.files[0];if(!f2)return;
+      const r2=new FileReader();
+      r2.onload=e2=>{
+        const id2='iph-'+Date.now();
+        inlinePhotoFiles[id2]={file:f2,previewUrl:e2.target.result,caption:''};
+        block.dataset.file2=id2;
+        block.dataset.duo='1';
+        // Créer un wrapper duo qui englobe les deux photos
+        const wrapper=document.createElement('div');
+        wrapper.className='iph-duo-wrapper';
+        wrapper.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:3px;border-radius:10px;overflow:hidden;width:100%';
+        // Déplacer le frame existant dans le wrapper
+        const frame=block.querySelector('.iph-frame');
+        const frameClone=frame.cloneNode(true);
+        // Créer le 2e frame
+        const frame2=document.createElement('div');
+        frame2.style.cssText='position:relative;aspect-ratio:1;overflow:hidden';
+        const bg2=document.createElement('div');
+        bg2.className='iph-bg';
+        bg2.style.cssText=`background-image:url('${e2.target.result}');background-size:cover;background-position:center 50%;position:absolute;inset:0`;
+        frame2.appendChild(bg2);
+        wrapper.appendChild(frameClone);
+        wrapper.appendChild(frame2);
+        frame.replaceWith(wrapper);
+        btn.textContent='▭ Solo';
+        btn.style.color='var(--ad)';
+      };
+      r2.readAsDataURL(f2);
+      inp2.remove();
+    };
+    document.body.appendChild(inp2);
+    inp2.click();
+  } else {
+    block.dataset.duo='0';
+    // Revenir au frame solo
+    const wrapper=block.querySelector('.iph-duo-wrapper');
+    if(wrapper){
+      const firstFrame=wrapper.firstChild;
+      wrapper.replaceWith(firstFrame);
+    }
+    btn.textContent='▭▭ Côte à côte';
+    btn.style.color='var(--text3)';
+  }
+}
+
+function setIphPos(btn,posClass){
+  const block=btn.closest('.inline-photo-block');
+  block.className=block.className.replace(/pos-\w+/,posClass);
+  btn.closest('.iph-pos').querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function insertInlinePhoto(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const url=e.target.result;
+    const id='iph-'+Date.now();
+    const block=document.createElement('div');
+    block.className='inline-photo-block pos-center';
+    block.contentEditable='false';
+    block.dataset.file=id;
+    block.dataset.caption='';
+    block.innerHTML=`
+      <div style="display:flex;gap:5px;align-items:flex-start">
+        <div style="flex:1;min-width:0">
+          <div class="iph-frame" id="frame-${id}">
+            <div class="iph-bg" id="bg-${id}" style="background-image:url('${url}');background-size:cover;background-position:center 50%"></div>
+            <div class="iph-overlay">
+              <div class="iph-pos">
+                <button onclick="setIphPos(this,'pos-left')">◀</button>
+                <button class="on" onclick="setIphPos(this,'pos-center')">●</button>
+                <button onclick="setIphPos(this,'pos-right')">▶</button>
+              </div>
+              <button class="iph-rm" onclick="this.closest('.inline-photo-block').remove()">✕</button>
+            </div>
+          </div>
+          <div class="iph-slider-row" style="margin-top:3px">
+            <span>↕</span>
+            <input type="range" min="0" max="100" value="50" oninput="this.closest('.inline-photo-block').querySelector('.iph-bg').style.backgroundPosition='center '+this.value+'%'"/>
+          </div>
+          <div style="margin-top:3px">
+            <button onclick="toggleIphDuo(this,'${id}')" class="iph-duo-btn" style="background:none;border:1px solid var(--am);border-radius:20px;padding:2px 9px;font-size:10px;color:var(--text3);cursor:pointer;font-family:var(--sans)">▭▭ Côte à côte</button>
+          </div>
+          <input class="iph-caption" placeholder="Légende..." type="text" oninput="this.closest('.inline-photo-block').dataset.caption=this.value"/>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding-top:4px">
+          <span style="font-size:9px;color:var(--text3)">🔍</span>
+          <input type="range" min="100" max="200" value="100"
+            style="-webkit-appearance:none;writing-mode:vertical-lr;direction:rtl;width:3px;height:80px;background:var(--am);border-radius:2px;outline:none;cursor:pointer"
+            oninput="this.closest('.inline-photo-block').querySelector('.iph-bg').style.backgroundSize=this.value+'%'"/>
+        </div>
+      </div>
+    `;
+    inlinePhotoFiles[id]={file,previewUrl:url,caption:''};
+    const editor=document.getElementById('cv-editor');
+    if(savedRange){
+      const sel=window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(savedRange);
+      savedRange.deleteContents();
+      savedRange.insertNode(block);
+      const p=document.createElement('p');
+      p.innerHTML='<br>';
+      block.after(p);
+      const newRange=document.createRange();
+      newRange.setStart(p,0);
+      newRange.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(newRange);
+    } else {
+      editor.appendChild(block);
+      const p=document.createElement('p');
+      p.innerHTML='<br>';
+      editor.appendChild(p);
+    }
+    input.value='';
+  };
+  reader.readAsDataURL(file);
+}
+
+
+function setIphLayout(btn, layout){
+  const block=btn.closest('.inline-photo-block');
+  block.dataset.layout=layout;
+  block.querySelectorAll('.iph-layout-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const frame=block.querySelector('.iph-frame');
+  const id=block.dataset.file;
+  if(layout==='duo'){
+    frame.className='iph-frame duo';
+    // Vérifier s'il y a déjà 2 imgs
+    if(frame.querySelectorAll('img').length<2){
+      // Demander 2e photo
+      const inp2=document.createElement('input');
+      inp2.type='file';inp2.accept='image/*';inp2.style.display='none';
+      inp2.onchange=function(){
+        const f2=this.files[0];if(!f2)return;
+        const r2=new FileReader();
+        r2.onload=e2=>{
+          const id2='iph-'+Date.now();
+          inlinePhotoFiles[id2]={file:f2,previewUrl:e2.target.result,caption:''};
+          block.dataset.file2=id2;
+          const img2=document.createElement('img');
+          img2.src=e2.target.result;
+          img2.style.objectPosition='center 50%';
+          const removeBtn=frame.querySelector('.iph-remove');
+          frame.insertBefore(img2,removeBtn);
+        };
+        r2.readAsDataURL(f2);
+        inp2.remove();
+      };
+      document.body.appendChild(inp2);
+      inp2.click();
+    }
+  } else {
+    frame.className='iph-frame solo';
+    // Enlever 2e image si présente
+    const imgs=frame.querySelectorAll('img');
+    if(imgs.length>1)imgs[1].remove();
+  }
+}
+
+let inlinePhotoFiles={}; // {id: {file, caption}}
+
+// Écouter le keyup dans l'éditeur pour montrer le trigger photo sur ligne vide
+function initInlinePhotoTrigger(){
+  const editor=document.getElementById('cv-editor');
+  if(!editor)return;
+  editor.addEventListener('keyup',checkInlineTrigger);
+  editor.addEventListener('click',checkInlineTrigger);
+  editor.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){
+      // Sauvegarder position après le Enter
+      setTimeout(()=>{
+        const sel=window.getSelection();
+        if(sel&&sel.rangeCount>0)savedRange=sel.getRangeAt(0).cloneRange();
+      },10);
+    }
+  });
+}
+
+function checkInlineTrigger(){
+  // Nettoyer anciens triggers
+  document.querySelectorAll('.inline-photo-trigger').forEach(t=>t.remove());
+  const sel=window.getSelection();
+  if(!sel||!sel.rangeCount)return;
+  const node=sel.anchorNode;
+  const p=node?.nodeType===3?node.parentElement:node;
+  if(!p||!document.getElementById('cv-editor')?.contains(p))return;
+  if((p.tagName==='P'||p.tagName==='DIV')&&(p.textContent||'').trim()===''&&!p.classList.contains('inline-photo-block')){
+    savedRange=sel.getRangeAt(0).cloneRange();
+    const trigger=document.createElement('div');
+    trigger.className='inline-photo-trigger visible';
+    trigger.innerHTML=`<hr/><button onclick="triggerInlinePhoto()">📷 photo</button><hr/>`;
+    p.parentNode.insertBefore(trigger,p);
+  }
 }
 
 // PHOTOS MULTIPLES
@@ -1611,10 +2566,23 @@ function showPanel(name){
   const min=LK[name];
   if(min&&lc<min){toast('🔒 Débloqué à '+min+' lettres — encore '+(min-lc)+' à écrire !');return;}
   if(name==='album'){closeDrawer();openAlbum();return;}
-  const titles={humeur:'Humeur du jour',question:'Question du jour',resume:'Résumé',playlist:'Playlist & top 10',abc:'ABC Date',todo:'To Do',album:'Notre album',carte:'Notre carte'};
+  const titles={humeur:'Humeur du jour',question:'Question du jour',resume:'Résumé',playlist:'Playlist & top 10',abc:'ABC Date',todo:'To Do',album:'Notre album',carte:'Notre carte',boite:'Boîte à questions 💬'};
   document.getElementById('panel-overlay-title').textContent=titles[name]||name;
   const body=document.getElementById('panel-overlay-body');
-  if(name==='humeur')body.innerHTML=buildHumeur();
+  if(name==='boite'){
+    body.innerHTML=`
+    <div style="padding:0 16px 12px">
+      <div style="display:flex;gap:8px;margin-bottom:6px">
+        <input type="text" id="boite-input" placeholder="Pose une question..." style="flex:1;border:1px solid var(--border-med);border-radius:var(--rs);padding:10px 14px;font-size:16px;font-family:var(--serif);font-style:italic;background:var(--bg);outline:none;color:var(--text)"/>
+        <button onclick="addBoiteQuestion()" style="background:var(--a);color:#fff;border:none;border-radius:var(--rs);padding:10px 16px;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--sans)">↑</button>
+      </div>
+      <div style="font-size:11px;color:var(--text3)">Les questions apparaissent aussi dans l'éditeur de lettres</div>
+    </div>
+    <div id="boite-inner" style="padding:0 16px 16px"></div>`;
+    loadBoiteQuestions();
+    document.getElementById('boite-input').addEventListener('keydown',e=>{if(e.key==='Enter')addBoiteQuestion();});
+  }
+  else if(name==='humeur')body.innerHTML=buildHumeur();
   else if(name==='question'){
     body.innerHTML=`
     <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px 12px;border-bottom:1px solid var(--border)">
@@ -1889,17 +2857,19 @@ async function getOrGenerateQuestion(){
 
 async function generateQuestionAI(spicy=false){
   try{
-    const prompt=spicy
-      ?'Génère UNE seule question intime et légèrement coquine pour un couple en relation longue distance qui ne s\'est jamais rencontré en personne. La question doit parler de désir, d\'imagination, de fantasmes à distance. Pas de souvenirs physiques en commun. Juste la question, sans intro ni ponctuation finale. En français.'
-      :'Génère UNE seule question intime et originale pour un couple en relation longue distance qui ne s\'est jamais rencontré en vrai. La question doit explorer la connexion à distance, la découverte de l\'autre, l\'imaginaire, le futur ensemble, les petits détails du quotidien. Évite absolument les questions sur des souvenirs physiques ou des moments vécus ensemble. Juste la question, sans intro ni ponctuation finale. En français.';
-    const r=await fetch('https://letters-ai.gabrielblervaque.workers.dev',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:150,messages:[{role:'user',content:prompt}]})
-    });
-    const d=await r.json();
-    const txt=d.content?.map(b=>b.text||'').join('').trim();
-    return txt||null;
+    const today=new Date().toISOString().split('T')[0];
+    const type=spicy?'spicy':'normal';
+    const {data}=await db.from('daily_questions')
+      .select('question')
+      .eq('date',today)
+      .eq('type',type)
+      .order('created_at',{ascending:false});
+    if(data&&data.length>0){
+      // Pioche aléatoirement parmi les questions du jour
+      const q=data[Math.floor(Math.random()*data.length)];
+      return q.question;
+    }
+    return null;
   }catch(e){return null;}
 }
 
@@ -2478,6 +3448,94 @@ async function loadTodo(){
   }).join('');
 }
 
+// BOITE À QUESTIONS
+async function addBoiteQuestion(){
+  const inp=document.getElementById('boite-input');
+  const text=inp?.value?.trim();
+  if(!text||!cs)return;
+  await db.from('boite_questions').insert({
+    space_id:cs.space_id,
+    from_id:me.id,
+    text,
+    answered:false
+  });
+  inp.value='';
+  await loadBoiteQuestions();
+}
+
+async function loadBoiteQuestions(){
+  if(!cs)return;
+  const el=document.getElementById('boite-inner');if(!el)return;
+  const {data}=await db.from('boite_questions').select('*')
+    .eq('space_id',cs.space_id).order('created_at',{ascending:false});
+  if(!data||!data.length){
+    el.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--text3);font-style:italic;font-size:14px">Aucune question pour l\'instant.<br>Posez-vous des questions mutuellement !</div>';
+    return;
+  }
+  el.innerHTML=data.map(q=>{
+    const isMe=q.from_id===me.id;
+    const who=isMe?'Moi':cs.partner_name;
+    const d=new Date(q.created_at);
+    const dateStr=d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+    return `<div style="display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)">
+      <div style="width:8px;height:8px;border-radius:50%;background:${isMe?'var(--a)':'var(--am)'};flex-shrink:0;margin-top:5px"></div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-family:var(--serif);font-style:italic;color:var(--text);line-height:1.5">${q.text}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;display:flex;align-items:center;gap:6px">
+          <span>${who} · ${dateStr}</span>
+          ${q.answered?'<span style="font-size:10px;color:#5E8A6A;background:#EDF4EF;border-radius:20px;padding:1px 8px">Répondu ✓</span>':''}
+        </div>
+      </div>
+      ${isMe&&!q.answered?`<button onclick="deleteBoiteQ('${q.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;opacity:.5;flex-shrink:0">✕</button>`:''}
+    </div>`;
+  }).join('');
+}
+
+async function deleteBoiteQ(id){
+  await db.from('boite_questions').delete().eq('id',id);
+  await loadBoiteQuestions();
+}
+
+async function markBoiteAnswered(id){
+  await db.from('boite_questions').update({answered:true}).eq('id',id);
+}
+
+async function loadBoiteForEditor(){
+  if(!cs)return[];
+  const {data}=await db.from('boite_questions').select('*')
+    .eq('space_id',cs.space_id)
+    .eq('answered',false)
+    .neq('from_id',me.id) // Questions posées par l'autre
+    .order('created_at',{ascending:true});
+  return data||[];
+}
+
+async function renderEditorQBlock(){
+  const questions=await loadBoiteForEditor();
+  const block=document.getElementById('cv-q-block');
+  if(!block)return;
+  if(!questions.length){block.style.display='none';return;}
+  block.style.display='block';
+  const selects=questions.map((q,i)=>`
+    <label style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:${i<questions.length-1?'1px solid var(--am)':'none'}">
+      <input type="checkbox" class="q-check" data-id="${q.id}" style="margin-top:3px;accent-color:var(--a)"/>
+      <span style="font-size:13px;font-family:var(--serif);font-style:italic;color:var(--ad);line-height:1.5">${q.text}</span>
+    </label>`).join('');
+  block.innerHTML=`
+    <div style="background:var(--al);border-radius:12px;border:1px solid var(--am);margin:8px 0;overflow:hidden">
+      <div style="padding:8px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--am)">
+        <span style="font-size:10px;color:var(--a);font-weight:600;text-transform:uppercase;letter-spacing:.06em">💬 Questions en attente</span>
+        <button onclick="document.getElementById('cv-q-block').style.display='none'" style="background:none;border:none;font-size:11px;color:var(--text3);cursor:pointer;font-family:var(--sans)">Ignorer ×</button>
+      </div>
+      <div style="padding:4px 12px 8px">${selects}</div>
+    </div>`;
+}
+
+function getSelectedBoiteIds(){
+  const checks=document.querySelectorAll('#cv-q-block .q-check:checked');
+  return Array.from(checks).map(c=>c.dataset.id);
+}
+
 async function toggleTodo(id,done){
   await db.from('todos').update({done:!done}).eq('id',id);
   loadTodo();
@@ -2492,22 +3550,85 @@ async function deleteTodo(id){
 async function loadABC(){
   const {data}=await db.from('abc_dates').select('*').eq('space_id',cs.space_id).order('letter');
   const el=document.getElementById('abc-inner');if(!el)return;
-  if(!data||!data.length){el.innerHTML='<div style="padding:16px;color:var(--text3);font-style:italic;font-size:14px;text-align:center">Aucune activité — ajoutez des idées dans la To Do ✦</div>';return;}
+  // Bouton IA toujours visible en haut
+  const aiBtn=`<div style="padding:0 16px 12px">
+    <button onclick="genABCWithAI()" id="abc-ai-btn" class="btn-sm p" style="width:100%">✨ Personnaliser avec l'IA</button>
+    <div style="font-size:11px;color:var(--text3);margin-top:6px;text-align:center">L'IA lit vos lettres et propose des activités sur mesure</div>
+  </div>`;
+  if(!data||!data.length){
+    el.innerHTML=aiBtn+'<div style="padding:0 16px;color:var(--text3);font-style:italic;font-size:14px;text-align:center">Aucune activité — ajoutez des idées dans la To Do ✦</div>';
+    return;
+  }
   const byLetter={};
   data.forEach(it=>{if(!byLetter[it.letter])byLetter[it.letter]=[];byLetter[it.letter].push(it);});
   const letters=Object.keys(byLetter).sort();
-  el.innerHTML='<div class="abc-grid">'+letters.map(letter=>{
+  el.innerHTML=aiBtn+'<div class="abc-grid">'+letters.map(letter=>{
     const items=byLetter[letter];
     const allDone=items.every(i=>i.done);
     const firstUndone=items.find(i=>!i.done)||items[0];
     const cl='abc-card'+(allDone?' done':'');
-    const hasMore=items.length>1;
     return `<div class="${cl}" data-letter="${letter}" ondblclick="event.stopPropagation();togABC('${firstUndone.id}',${firstUndone.done})">
       <div class="abc-l">${letter}</div>
       ${items.map(it=>`<div class="abc-a" style="font-size:11px;${it.done?'opacity:.4':''}"">${it.activity}</div>`).join('')}
       ${allDone?'<div class="abc-ok">✓</div>':''}
     </div>`;
   }).join('')+'</div>';
+}
+
+async function genABCWithAI(){
+  const btn=document.getElementById('abc-ai-btn');
+  if(btn){btn.disabled=true;btn.textContent='✨ Génération...';}
+  // Récupérer les lettres existantes pour contexte
+  const {data:r1}=await db.from('letters').select('body').eq('from_id',me.id).eq('to_id',cs.partner_id).order('created_at',{ascending:false}).limit(8);
+  const {data:r2}=await db.from('letters').select('body').eq('from_id',cs.partner_id).eq('to_id',me.id).order('created_at',{ascending:false}).limit(8);
+  const letters=[...(r1||[]),...(r2||[])];
+  const letterContent=letters.map(l=>l.body.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim().substring(0,200)).join('\n').substring(0,2000);
+  // Récupérer les activités déjà présentes
+  const {data:existing}=await db.from('abc_dates').select('letter,activity').eq('space_id',cs.space_id);
+  const existingByLetter={};
+  (existing||[]).forEach(e=>{if(!existingByLetter[e.letter])existingByLetter[e.letter]=[];existingByLetter[e.letter].push(e.activity);});
+  const allLetters='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  const missingLetters=allLetters.filter(l=>!existingByLetter[l]);
+  const prompt=`Tu es l'assistant d'une app de correspondance entre ${me.name} (${me.city||'—'}) et ${cs.partner_name} (${cs.partner_city||'—'}).
+
+Voici des extraits de leurs lettres pour comprendre leurs centres d'intérêts :
+${letterContent||'Pas encore de lettres.'}
+
+Génère UNE activité de date originale et personnalisée pour CHACUNE de ces lettres : ${missingLetters.join(', ')}.
+
+Ces activités doivent :
+- Être adaptées à un couple en longue distance (activités à faire ensemble à distance OU à faire lors d'une rencontre future)
+- Refléter leurs centres d'intérêts trouvés dans leurs lettres
+- Être créatives et spécifiques, pas génériques
+
+Réponds UNIQUEMENT en JSON valide, sans markdown, ce format exact :
+{"A":"activité pour A","B":"activité pour B",...}`;
+
+  try{
+    const r=await fetch('https://letters-ai.gabrielblervaque.workers.dev',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    const d=await r.json();
+    const txt=d.content?.map(b=>b.text||'').join('').trim();
+    const suggestions=JSON.parse(txt);
+    // Insérer les nouvelles activités en base
+    const toInsert=[];
+    for(const [letter,activity] of Object.entries(suggestions)){
+      if(activity&&missingLetters.includes(letter)){
+        toInsert.push({letter,activity,space_id:cs.space_id,done:false,added_by:me.id});
+      }
+    }
+    if(toInsert.length){
+      await db.from('abc_dates').insert(toInsert);
+      toast('✨ '+toInsert.length+' activités ajoutées par l\'IA !');
+    }
+    loadABC();
+  }catch(e){
+    toast('Erreur lors de la génération');
+    if(btn){btn.disabled=false;btn.textContent='✨ Personnaliser avec l\'IA';}
+  }
 }
 
 let abcData=[];
@@ -2663,8 +3784,24 @@ function urlBase64ToUint8Array(base64String){
 
 async function sendPushToPartner(letterBody){
   if(!cs||!me)return;
+  // Email notification via Resend
   try{
-    // Récupérer la subscription du partenaire
+    const {data:partnerProfile}=await db.from('user_profiles').select('email').eq('id',cs.partner_id).single();
+    if(partnerProfile?.email){
+      await fetch('https://letters-ai.gabrielblervaque.workers.dev/notify',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          to_email:partnerProfile.email,
+          to_name:cs.partner_name,
+          from_name:me.name,
+          space_name:cs.space_name||`${me.name} & ${cs.partner_name}`
+        })
+      });
+    }
+  }catch(e){console.warn('Email notification failed:',e);}
+  // Push notification (si dispo)
+  try{
     const {data}=await db.from('push_subscriptions').select('subscription').eq('user_id',cs.partner_id).single();
     if(!data?.subscription)return;
     await fetch('/api/push',{
@@ -2695,6 +3832,34 @@ if(window.visualViewport){
 }
 
 // INIT
+// ONBOARDING
+let obCur=0;
+const obScreens=['ob0','ob1','ob2'];
+const obDots=['od0','od1','od2'];
+function obGoTo(n){
+  const prev=obCur;
+  document.getElementById(obScreens[prev]).classList.remove('on');
+  document.getElementById(obScreens[prev]).classList.add('exit');
+  setTimeout(()=>document.getElementById(obScreens[prev]).classList.remove('exit'),400);
+  document.getElementById(obDots[prev]).classList.remove('on');
+  document.getElementById(obDots[prev]).style.width='6px';
+  obCur=n;
+  document.getElementById(obScreens[obCur]).classList.add('on');
+  document.getElementById(obDots[obCur]).classList.add('on');
+  document.getElementById(obDots[obCur]).style.width='18px';
+  const btn=document.getElementById('ob-next');
+  const skip=document.getElementById('ob-skip');
+  if(obCur===2){btn.textContent="C'est parti →";skip.style.display='none';}
+  else{btn.textContent='Suivant →';skip.style.display='block';}
+}
+function obNext(){if(obCur<2)obGoTo(obCur+1);else finishOnboarding();}
+function finishOnboarding(){
+  try{localStorage.setItem('ltrs_ob','1');}catch(e){}
+  document.getElementById('onboarding').classList.remove('on');
+  show('s-login');
+}
+function showOnboarding(){document.getElementById('onboarding').classList.add('on');}
+
 async function init(){
   loadSettings();
   const hash=window.location.hash;
@@ -2707,7 +3872,11 @@ async function init(){
   });
   const {data:{session}}=await db.auth.getSession();hideLoader();
   if(isReset)return;
-  if(!session){show('s-login');return;}
+  if(!session){
+    let seen=false;try{seen=!!localStorage.getItem('ltrs_ob');}catch(e){}
+    if(!seen){showOnboarding();}else{show('s-login');}
+    return;
+  }
   await loadMe(session.user);show(null);showHome();initPWA();
 }
 // POSTCARD READ
@@ -2737,7 +3906,7 @@ async function openPostcardRead(l){
   const salut=getSalut()||(toName+',');
   const sign=getSign()||(fromName+' x');
   document.getElementById('pcr-salut').textContent=salut;
-  document.getElementById('pcr-body').textContent=l.body||'';
+  document.getElementById('pcr-body').innerHTML=l.body||'';
   document.getElementById('pcr-sign').textContent=sign;
   document.getElementById('pcr-meta').textContent='À '+toName;
   const d=new Date(l.created_at);
@@ -2745,13 +3914,21 @@ async function openPostcardRead(l){
   // Photo
   const left=document.getElementById('pcr-left');
   if(l.photo_url){
-    left.innerHTML='<div class="pc-left-hint">Chargement...</div>';
+    left.innerHTML='<div class="pc-left-hint" style="opacity:.5">📷</div>';
+    document.getElementById('postcard-read-view').classList.add('on');
     const url=await getSignedUrl(l.photo_url);
-    left.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0"/><div style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.4);color:#fff;font-size:10px;padding:3px 8px;border-radius:20px;font-family:var(--sans)">${mine?(me.city||'—'):(cs.partner_city||'—')}</div>`;
+    const city=mine?(me.city||'—'):(cs.partner_city||'—');
+    const img=new Image();
+    img.onload=()=>{
+      left.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;opacity:0;transition:opacity .3s"/><div style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.4);color:#fff;font-size:10px;padding:3px 8px;border-radius:20px;font-family:var(--sans)">${city}</div>`;
+      requestAnimationFrame(()=>{const i=left.querySelector('img');if(i)i.style.opacity='1';});
+    };
+    img.onerror=()=>{left.innerHTML='<div class="pc-left-hint">Photo indisponible</div>';};
+    img.src=url;
   } else {
     left.innerHTML='<div class="pc-left-hint">Pas de photo</div>';
+    document.getElementById('postcard-read-view').classList.add('on');
   }
-  document.getElementById('postcard-read-view').classList.add('on');
 }
 function closePostcardRead(){
   document.getElementById('postcard-read-view').classList.remove('on');
@@ -2789,6 +3966,8 @@ function openPostcard(){
   closeDrawer();
   pcPhotoFile=null;
   document.getElementById('pc-left').innerHTML='<div class="pc-left-hint">📷<br>Ta photo ici</div>';
+  const ctrl=document.getElementById('pc-crop-ctrl');
+  if(ctrl)ctrl.style.display='none';
   document.getElementById('pc-message').innerHTML='';
   document.getElementById('pc-to').textContent='À '+cs.partner_name;
   document.getElementById('pc-send-btn').disabled=false;
@@ -2810,10 +3989,16 @@ function onPCPhoto(input){
   pcPhotoFile=file;
   const reader=new FileReader();
   reader.onload=e=>{
-    document.getElementById('pc-left').innerHTML=`<img src="${e.target.result}"/><div style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.4);color:#fff;font-size:10px;padding:3px 8px;border-radius:20px;font-family:var(--sans)">${me.city||'—'}</div>`;
+    document.getElementById('pc-left').innerHTML=`<img id="pc-photo-img" src="${e.target.result}" style="object-position:center 50%"/><div style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.4);color:#fff;font-size:10px;padding:3px 8px;border-radius:20px;font-family:var(--sans)">${me.city||'—'}</div>`;
+    const ctrl=document.getElementById('pc-crop-ctrl');
+    if(ctrl){ctrl.style.display='flex';document.getElementById('pc-crop-slider').value=50;}
   };
   reader.readAsDataURL(file);
   input.value='';
+}
+function adjustPCCrop(val){
+  const img=document.getElementById('pc-photo-img');
+  if(img)img.style.objectPosition=`center ${val}%`;
 }
 async function sendPostcard(){
   const editor=document.getElementById('pc-message');
@@ -2837,6 +4022,235 @@ async function sendPostcard(){
   }catch(e){
     btn.disabled=false;btn.textContent='Envoyer ↑';
     toast('Erreur lors de l\'envoi');
+  }
+}
+
+// TUTORIEL — 4 étapes compactes
+let tutoCur=0;
+
+const TUTO_STEPS=[
+  {
+    title:'Une lettre, pas un message',
+    desc:'Voilà une lettre reçue. Clique pour lire, réponds quand tu es prêt.',
+    show:()=>{
+      if(!document.getElementById('tuto-fake'))tutoInsertFake();
+      setTimeout(()=>tutoSpotEl('tuto-fake'),100);
+    },
+    cardPos:'bottom'
+  },
+  {
+    title:'Écrire une lettre',
+    desc:'Le bouton Écrire ouvre l\'éditeur. Texte, photos, dessins à main levée, police au choix.',
+    show:()=>{
+      tutoRemoveFake();
+      try{closeDrawer();}catch(e){}
+      setTimeout(()=>tutoSpotSel('button[onclick="openCompose()"]'),100);
+    },
+    cardPos:'bottom'
+  },
+  {
+    title:'Le menu — tout se débloque',
+    desc:'Humeur, questions, Notre carte, album, ABC Date, carte postale... lettre après lettre.',
+    show:()=>{
+      tutoHideSpot();
+      setTimeout(()=>{
+        openDrawer();
+        setTimeout(()=>tutoSpotSel('.drawer-panel'),300);
+      },100);
+    },
+    cardPos:'top'
+  },
+  {
+    title:"C'est à toi !",
+    desc:"Écris ce que tu ressens, prends le temps qu'il faut. Le reste se découvre.",
+    show:()=>{
+      tutoHideSpot();
+      try{closeDrawer();}catch(e){}
+    },
+    cardPos:'bottom'
+  }
+];
+
+function tutoInsertFake(){
+  const list=document.getElementById('mailbox-list');
+  if(!list)return;
+  const el=document.createElement('div');
+  el.id='tuto-fake';
+  el.className='letter-row';
+  el.style.cssText='border-left:3px solid #5E8A6A;background:#F7FAF8';
+  el.innerHTML='<div class="lr-av" style="background:#EDF4EF;color:#3A5E44">E</div>'
+    +'<div class="lr-body"><div class="lr-top"><span class="lr-name">Eva</span><span class="lr-date">maintenant</span></div>'
+    +'<div class="lr-preview" style="font-style:italic">Je pense à toi depuis ce matin...</div>'
+    +'<div class="lr-meta"><span class="lr-tag" style="background:var(--al);color:var(--ad)">Nouvelle lettre</span></div></div>';
+  list.insertBefore(el, list.firstChild);
+}
+
+function tutoRemoveFake(){
+  const el=document.getElementById('tuto-fake');
+  if(el)el.remove();
+}
+
+function tutoSpotEl(id){
+  const el=document.getElementById(id);
+  if(el)tutoSetSpot(el.getBoundingClientRect());
+}
+
+function tutoSpotSel(sel){
+  const el=document.querySelector(sel);
+  if(el)tutoSetSpot(el.getBoundingClientRect());
+  else tutoHideSpot();
+}
+
+function tutoSetSpot(r){
+  const sp=document.getElementById('tuto-spotlight');
+  if(!sp)return;
+  sp.style.cssText='position:fixed;display:block;z-index:7999;pointer-events:none;'
+    +'box-shadow:0 0 0 9999px rgba(0,0,0,.58);'
+    +'border-radius:14px;'
+    +'transition:top .4s cubic-bezier(.34,1.1,.64,1),left .4s cubic-bezier(.34,1.1,.64,1),width .4s,height .4s;'
+    +'top:'+(r.top-8)+'px;left:'+(r.left-8)+'px;'
+    +'width:'+(r.width+16)+'px;height:'+(r.height+16)+'px';
+  // Position card opposite to spotlight
+  const card=document.querySelector('.tuto-card');
+  if(!card)return;
+  const vh=window.innerHeight;
+  const spotMid=r.top+r.height/2;
+  if(spotMid>vh/2){card.style.top='16px';card.style.bottom='auto';}
+  else{card.style.bottom='16px';card.style.top='auto';}
+}
+
+function tutoHideSpot(){
+  const sp=document.getElementById('tuto-spotlight');
+  if(sp)sp.style.cssText='display:none';
+}
+
+function tutoPositionCard(pos){
+  const card=document.querySelector('.tuto-card');
+  if(!card)return;
+  if(pos==='top'){card.style.top='16px';card.style.bottom='auto';}
+  else{card.style.bottom='16px';card.style.top='auto';}
+}
+
+function startTuto(){
+  try{if(localStorage.getItem('ltrs_tuto_done'))return;}catch(e){}
+  tutoCur=0;
+  const ov=document.getElementById('tuto-overlay');
+  if(ov){ov.style.display='block';ov.classList.add('on');}
+  tutoRender(0);
+}
+
+function tutoRender(i){
+  const s=TUTO_STEPS[i];
+  s.show();
+  document.getElementById('tuto-step-label').textContent=(i+1)+' sur '+TUTO_STEPS.length;
+  document.getElementById('tuto-title').textContent=s.title;
+  document.getElementById('tuto-desc').textContent=s.desc;
+  document.getElementById('tuto-next-btn').textContent=i===TUTO_STEPS.length-1?"C'est parti \u2736":'Suivant \u2192';
+  const dots=document.getElementById('tuto-dots');
+  dots.innerHTML=TUTO_STEPS.map((_,j)=>'<div class="tuto-dot'+(j===i?' on':'')+'" style="width:'+(j===i?14:5)+'px"></div>').join('');
+  setTimeout(()=>tutoPositionCard(s.cardPos),50);
+}
+
+function tutoNext(){
+  if(tutoCur<TUTO_STEPS.length-1){tutoCur++;tutoRender(tutoCur);}
+  else skipTuto();
+}
+
+function skipTuto(){
+  tutoRemoveFake();
+  tutoHideSpot();
+  try{closeDrawer();}catch(e){}
+  const ov=document.getElementById('tuto-overlay');
+  if(ov){ov.classList.remove('on');ov.style.display='none';}
+  try{localStorage.setItem('ltrs_tuto_done','1');}catch(e){}
+}
+
+
+// NOTIFICATIONS PUSH (APNs via Capacitor)
+let notifEnabled=false;
+
+async function initNotifications(){
+  try{
+    if(!window.Capacitor||!window.Capacitor.isNativePlatform())return;
+    const {PushNotifications}=window.Capacitor.Plugins;
+    if(!PushNotifications)return;
+    const {data:row}=await db.from('push_subscriptions').select('apns_token').eq('user_id',me.id).single();
+    if(row&&row.apns_token){setNotifUI(true);}else{setNotifUI(false);}
+  }catch(e){setNotifUI(false);}
+}
+
+async function toggleNotifications(){
+  if(!window.Capacitor||!window.Capacitor.isNativePlatform()){
+    const st=document.getElementById('notif-status');
+    if(st)st.textContent="Notifications disponibles uniquement dans l'app iOS.";
+    return;
+  }
+  if(notifEnabled){
+    await db.from('push_subscriptions').delete().eq('user_id',me.id);
+    setNotifUI(false);
+    toast('Notifications désactivées');
+  }else{
+    await registerPush();
+  }
+}
+
+async function registerPush(){
+  try{
+    const {PushNotifications}=window.Capacitor.Plugins;
+    const perm=await PushNotifications.requestPermissions();
+    if(perm.receive!=='granted'){
+      const st=document.getElementById('notif-status');
+      if(st)st.textContent="Permission refusée. Active les notifications dans les Réglages iOS.";
+      return;
+    }
+    await PushNotifications.register();
+    PushNotifications.addListener('registration',async(token)=>{
+      await db.from('push_subscriptions').upsert({user_id:me.id,apns_token:token.value,subscription:{}},{onConflict:'user_id'});
+      setNotifUI(true);
+      toast('Notifications activées ✦');
+    });
+    PushNotifications.addListener('registrationError',(err)=>{
+      const st=document.getElementById('notif-status');
+      if(st)st.textContent="Erreur d'enregistrement.";
+    });
+  }catch(e){
+    const st=document.getElementById('notif-status');
+    if(st)st.textContent='Erreur : '+e.message;
+  }
+}
+
+function setNotifUI(enabled){
+  notifEnabled=enabled;
+  const toggle=document.getElementById('notif-toggle');
+  const thumb=document.getElementById('notif-thumb');
+  const status=document.getElementById('notif-status');
+  if(!toggle||!thumb)return;
+  if(enabled){
+    toggle.style.background='var(--a)';
+    thumb.style.left='23px';
+    if(status)status.textContent='Activées — tu seras notifié·e à chaque lettre.';
+  }else{
+    toggle.style.background='var(--border-med)';
+    thumb.style.left='3px';
+    if(status)status.textContent='Désactivées';
+  }
+}
+
+async function askDeleteAccount(){
+  if(!confirm('Supprimer définitivement ton compte et toutes tes données ? Cette action est irréversible.'))return;
+  if(!confirm('Dernière confirmation — tout sera effacé : lettres, photos, profil.'))return;
+  try{
+    const uid=me.id;
+    await db.from('letters').delete().eq('user_id',uid);
+    await db.from('profiles').delete().eq('id',uid);
+    await db.auth.signOut();
+    toast('Compte supprimé.');
+    me=null;cs=null;
+    document.getElementById('app').classList.remove('on');
+    document.getElementById('home').classList.remove('on');
+    show('s-login');
+  }catch(e){
+    toast('Erreur lors de la suppression. Contacte hello@letters-app.xyz');
   }
 }
 
