@@ -799,6 +799,7 @@ input[type=range].iph-zoom-v::-webkit-slider-thumb{-webkit-appearance:none;width
       <div style="font-family:var(--serif);font-size:13px;font-style:italic;color:var(--text2);line-height:1.85;max-height:180px;overflow-y:auto" id="cv-reply-body"></div>
     </div>
   </div>
+  <div id="cv-q-block" style="display:none;padding:0 16px"></div>
   <div class="cv-body" id="cv-body">
     <div style="font-size:11px;color:var(--text3);margin-bottom:16px;letter-spacing:.01em" id="cv-date-line"></div>
     <div style="font-family:var(--serif);font-size:15px;font-style:italic;color:var(--text3);margin-bottom:12px" id="cv-salut-pre"></div>
@@ -984,7 +985,7 @@ input[type=range].iph-zoom-v::-webkit-slider-thumb{-webkit-appearance:none;width
     <div class="drawer-section">To Do</div>
     <button class="drawer-item" onclick="showPanel('todo')"><span class="drawer-icon">📝</span><span>Nos idées & envies</span></button>
     <button class="drawer-item" onclick="openPostcard()"><span class="drawer-icon">📮</span><span>Carte postale</span></button>
-    <button class="drawer-item" onclick="closeDrawer();showPanel('question')"><span class="drawer-icon">💬</span><span>Boîte à questions</span></button>
+    <button class="drawer-item" onclick="closeDrawer();showPanel('boite')"><span class="drawer-icon">💬</span><span>Boîte à questions</span></button>
     <button class="drawer-item" onclick="showPanel('carte')"><span class="drawer-icon">🌍</span><span>Notre carte</span></button>
     <div class="drawer-section">Fonctionnalités</div>
     <button class="drawer-item" onclick="showPanel('humeur')"><span class="drawer-icon">🌤</span><span>Humeur du jour</span><span class="drawer-lock" id="dk-humeur"></span></button>
@@ -1858,6 +1859,7 @@ function openCompose(replyTo){
   if(signEl)signEl.textContent=signText;
   document.getElementById('compose-view').classList.add('on');
   setTimeout(()=>{document.getElementById('cv-editor')?.focus();initInlinePhotoTrigger();},300);
+  renderEditorQBlock();
 }
 
 function closeCompose(){
@@ -1965,6 +1967,9 @@ async function sendLetter(){
     hearts:0
   });
   btn.disabled=false;btn.textContent='Envoyer ↑';
+  // Marquer questions cochées comme répondues
+  const answeredIds=getSelectedBoiteIds();
+  for(const id of answeredIds){await markBoiteAnswered(id);}
   sendPushToPartner(bodyText);
   photoFiles=[];
   inlinePhotoFiles={};
@@ -2379,10 +2384,23 @@ function showPanel(name){
   const min=LK[name];
   if(min&&lc<min){toast('🔒 Débloqué à '+min+' lettres — encore '+(min-lc)+' à écrire !');return;}
   if(name==='album'){closeDrawer();openAlbum();return;}
-  const titles={humeur:'Humeur du jour',question:'Question du jour',resume:'Résumé',playlist:'Playlist & top 10',abc:'ABC Date',todo:'To Do',album:'Notre album',carte:'Notre carte'};
+  const titles={humeur:'Humeur du jour',question:'Question du jour',resume:'Résumé',playlist:'Playlist & top 10',abc:'ABC Date',todo:'To Do',album:'Notre album',carte:'Notre carte',boite:'Boîte à questions 💬'};
   document.getElementById('panel-overlay-title').textContent=titles[name]||name;
   const body=document.getElementById('panel-overlay-body');
-  if(name==='humeur')body.innerHTML=buildHumeur();
+  if(name==='boite'){
+    body.innerHTML=`
+    <div style="padding:0 16px 12px">
+      <div style="display:flex;gap:8px;margin-bottom:6px">
+        <input type="text" id="boite-input" placeholder="Pose une question..." style="flex:1;border:1px solid var(--border-med);border-radius:var(--rs);padding:10px 14px;font-size:16px;font-family:var(--serif);font-style:italic;background:var(--bg);outline:none;color:var(--text)"/>
+        <button onclick="addBoiteQuestion()" style="background:var(--a);color:#fff;border:none;border-radius:var(--rs);padding:10px 16px;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--sans)">↑</button>
+      </div>
+      <div style="font-size:11px;color:var(--text3)">Les questions apparaissent aussi dans l'éditeur de lettres</div>
+    </div>
+    <div id="boite-inner" style="padding:0 16px 16px"></div>`;
+    loadBoiteQuestions();
+    document.getElementById('boite-input').addEventListener('keydown',e=>{if(e.key==='Enter')addBoiteQuestion();});
+  }
+  else if(name==='humeur')body.innerHTML=buildHumeur();
   else if(name==='question'){
     body.innerHTML=`
     <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px 12px;border-bottom:1px solid var(--border)">
@@ -3244,6 +3262,94 @@ async function loadTodo(){
       ${isMe?`<button onclick="deleteTodo('${t.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;opacity:.5;flex-shrink:0">✕</button>`:''}
     </div>`;
   }).join('');
+}
+
+// BOITE À QUESTIONS
+async function addBoiteQuestion(){
+  const inp=document.getElementById('boite-input');
+  const text=inp?.value?.trim();
+  if(!text||!cs)return;
+  await db.from('boite_questions').insert({
+    space_id:cs.space_id,
+    from_id:me.id,
+    text,
+    answered:false
+  });
+  inp.value='';
+  await loadBoiteQuestions();
+}
+
+async function loadBoiteQuestions(){
+  if(!cs)return;
+  const el=document.getElementById('boite-inner');if(!el)return;
+  const {data}=await db.from('boite_questions').select('*')
+    .eq('space_id',cs.space_id).order('created_at',{ascending:false});
+  if(!data||!data.length){
+    el.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--text3);font-style:italic;font-size:14px">Aucune question pour l\'instant.<br>Posez-vous des questions mutuellement !</div>';
+    return;
+  }
+  el.innerHTML=data.map(q=>{
+    const isMe=q.from_id===me.id;
+    const who=isMe?'Moi':cs.partner_name;
+    const d=new Date(q.created_at);
+    const dateStr=d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+    return `<div style="display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)">
+      <div style="width:8px;height:8px;border-radius:50%;background:${isMe?'var(--a)':'var(--am)'};flex-shrink:0;margin-top:5px"></div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-family:var(--serif);font-style:italic;color:var(--text);line-height:1.5">${q.text}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;display:flex;align-items:center;gap:6px">
+          <span>${who} · ${dateStr}</span>
+          ${q.answered?'<span style="font-size:10px;color:#5E8A6A;background:#EDF4EF;border-radius:20px;padding:1px 8px">Répondu ✓</span>':''}
+        </div>
+      </div>
+      ${isMe&&!q.answered?`<button onclick="deleteBoiteQ('${q.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;opacity:.5;flex-shrink:0">✕</button>`:''}
+    </div>`;
+  }).join('');
+}
+
+async function deleteBoiteQ(id){
+  await db.from('boite_questions').delete().eq('id',id);
+  await loadBoiteQuestions();
+}
+
+async function markBoiteAnswered(id){
+  await db.from('boite_questions').update({answered:true}).eq('id',id);
+}
+
+async function loadBoiteForEditor(){
+  if(!cs)return[];
+  const {data}=await db.from('boite_questions').select('*')
+    .eq('space_id',cs.space_id)
+    .eq('answered',false)
+    .neq('from_id',me.id) // Questions posées par l'autre
+    .order('created_at',{ascending:true});
+  return data||[];
+}
+
+async function renderEditorQBlock(){
+  const questions=await loadBoiteForEditor();
+  const block=document.getElementById('cv-q-block');
+  if(!block)return;
+  if(!questions.length){block.style.display='none';return;}
+  block.style.display='block';
+  const selects=questions.map((q,i)=>`
+    <label style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:${i<questions.length-1?'1px solid var(--am)':'none'}">
+      <input type="checkbox" class="q-check" data-id="${q.id}" style="margin-top:3px;accent-color:var(--a)"/>
+      <span style="font-size:13px;font-family:var(--serif);font-style:italic;color:var(--ad);line-height:1.5">${q.text}</span>
+    </label>`).join('');
+  block.innerHTML=`
+    <div style="background:var(--al);border-radius:12px;border:1px solid var(--am);margin:8px 0;overflow:hidden">
+      <div style="padding:8px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--am)">
+        <span style="font-size:10px;color:var(--a);font-weight:600;text-transform:uppercase;letter-spacing:.06em">💬 Questions en attente</span>
+        <button onclick="document.getElementById('cv-q-block').style.display='none'" style="background:none;border:none;font-size:11px;color:var(--text3);cursor:pointer;font-family:var(--sans)">Ignorer ×</button>
+      </div>
+      <div style="padding:4px 12px 8px">${selects}</div>
+    </div>`;
+}
+
+function getSelectedBoiteIds(){
+  const checks=document.querySelectorAll('#cv-q-block .q-check:checked');
+  return Array.from(checks).map(c=>c.dataset.id);
 }
 
 async function toggleTodo(id,done){
