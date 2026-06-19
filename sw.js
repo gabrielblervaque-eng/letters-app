@@ -1,24 +1,27 @@
-const CACHE_NAME = 'letters-v1';
-const urlsToCache = ['/letters-app/', '/letters-app/index.html'];
+self.addEventListener('install', e => self.skipWaiting());
+self.addEventListener('activate', e => e.waitUntil(clients.claim()));
 
-self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache)));
+self.addEventListener('push', e => {
+  const data = e.data ? e.data.json() : {};
+  const title = data.title || 'Letters ✉';
+  const options = {
+    body: data.body || 'Tu as reçu une nouvelle lettre.',
+    icon: '/letters-app/icon-192.png',
+    badge: '/letters-app/icon-192.png',
+    vibrate: [200, 100, 200],
+    data: { url: data.url || 'https://letters-app.xyz' },
+    actions: [{ action: 'open', title: 'Lire la lettre →' }]
+  };
+  e.waitUntil(self.registration.showNotification(title, options));
 });
 
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(response => response || fetch(event.request))
-  );
-});
-
-self.addEventListener('push', event => {
-  if (!event.data) return;
-  const data = event.data.json();
-  event.waitUntil(
-    self.registration.showNotification(data.title || 'Letters', {
-      body: data.body || '',
-      icon: '/letters-app/icon-192.png',
-      badge: '/letters-app/icon-192.png'
-    })
-  );
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = e.notification.data?.url || 'https://letters-app.xyz';
+  e.waitUntil(clients.matchAll({ type: 'window' }).then(wcs => {
+    for (const wc of wcs) {
+      if (wc.url === url && 'focus' in wc) return wc.focus();
+    }
+    if (clients.openWindow) return clients.openWindow(url);
+  }));
 });
