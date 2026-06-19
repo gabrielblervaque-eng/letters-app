@@ -3600,8 +3600,24 @@ function urlBase64ToUint8Array(base64String){
 
 async function sendPushToPartner(letterBody){
   if(!cs||!me)return;
+  // Email notification via Resend
   try{
-    // Récupérer la subscription du partenaire
+    const {data:partnerProfile}=await db.from('user_profiles').select('email').eq('id',cs.partner_id).single();
+    if(partnerProfile?.email){
+      await fetch('https://letters-ai.gabrielblervaque.workers.dev/notify',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          to_email:partnerProfile.email,
+          to_name:cs.partner_name,
+          from_name:me.name,
+          space_name:cs.space_name||`${me.name} & ${cs.partner_name}`
+        })
+      });
+    }
+  }catch(e){console.warn('Email notification failed:',e);}
+  // Push notification (si dispo)
+  try{
     const {data}=await db.from('push_subscriptions').select('subscription').eq('user_id',cs.partner_id).single();
     if(!data?.subscription)return;
     await fetch('/api/push',{
