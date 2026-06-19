@@ -2691,17 +2691,19 @@ async function getOrGenerateQuestion(){
 
 async function generateQuestionAI(spicy=false){
   try{
-    const prompt=spicy
-      ?'Génère UNE seule question intime et légèrement coquine pour un couple en relation longue distance qui ne s\'est jamais rencontré en personne. La question doit parler de désir, d\'imagination, de fantasmes à distance. Pas de souvenirs physiques en commun. Juste la question, sans intro ni ponctuation finale. En français.'
-      :'Génère UNE seule question intime et originale pour un couple en relation longue distance qui ne s\'est jamais rencontré en vrai. La question doit explorer la connexion à distance, la découverte de l\'autre, l\'imaginaire, le futur ensemble, les petits détails du quotidien. Évite absolument les questions sur des souvenirs physiques ou des moments vécus ensemble. Juste la question, sans intro ni ponctuation finale. En français.';
-    const r=await fetch('https://letters-ai.gabrielblervaque.workers.dev',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:150,messages:[{role:'user',content:prompt}]})
-    });
-    const d=await r.json();
-    const txt=d.content?.map(b=>b.text||'').join('').trim();
-    return txt||null;
+    const today=new Date().toISOString().split('T')[0];
+    const type=spicy?'spicy':'normal';
+    const {data}=await db.from('daily_questions')
+      .select('question')
+      .eq('date',today)
+      .eq('type',type)
+      .order('created_at',{ascending:false});
+    if(data&&data.length>0){
+      // Pioche aléatoirement parmi les questions du jour
+      const q=data[Math.floor(Math.random()*data.length)];
+      return q.question;
+    }
+    return null;
   }catch(e){return null;}
 }
 
