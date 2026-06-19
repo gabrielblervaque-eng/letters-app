@@ -705,6 +705,20 @@ input[type=range].iph-zoom-v::-webkit-slider-thumb{-webkit-appearance:none;width
   </div>
 </div>
 
+
+<!-- COMPLETE PROFILE (after Google/Apple login) -->
+<div class="scr" id="s-complete-profile">
+  <div class="auth-box">
+    <div class="auth-logo">Letters</div>
+    <div class="auth-title">Bienvenue !</div>
+    <div class="auth-sub">Dis-nous comment t'appeler avant de commencer.</div>
+    <div class="err-box" id="cp-err"></div>
+    <div class="fld"><label>Prénom</label><input type="text" id="cp-name" autocomplete="given-name" placeholder="Gabriel"/></div>
+    <div class="fld"><label>Ville / Pays</label><input type="text" id="cp-city" placeholder="Lille, France"/></div>
+    <button class="btn p" onclick="saveCompleteProfile()" id="cp-btn">C'est parti ✦</button>
+  </div>
+</div>
+
 <!-- HOME -->
 <div class="home" id="home">
   <div class="home-bar">
@@ -1336,7 +1350,7 @@ async function doLogin(){
   const {data,error}=await db.auth.signInWithPassword({email:e,password:p});
   if(error){err.textContent='Email ou mot de passe incorrect.';err.classList.add('on');btn.disabled=false;btn.textContent='Se connecter';return;}
   btn.disabled=false;btn.textContent='Se connecter';
-  await loadMe(data.user);show(null);showHome();
+  try{await loadMe(data.user);show(null);showHome();}catch(e){if(e.message!=='profile_incomplete')throw e;}
 }
 async function doForgot(){
   const e=document.getElementById('f-email').value.trim();
@@ -1359,7 +1373,34 @@ async function doReset(){
   isReset=false;await db.auth.signOut();toast('Mot de passe mis à jour !');show('s-login');
 }
 async function doLogout(){await db.auth.signOut();me=null;cs=null;document.getElementById('app').classList.remove('on');document.getElementById('home').classList.remove('on');show('s-login');closeModal('m-profil');}
-async function loadMe(u){const {data}=await db.from('user_profiles').select('*').eq('id',u.id).single();me=data;}
+async function loadMe(u){
+  const {data}=await db.from('user_profiles').select('*').eq('id',u.id).single();
+  me=data;
+  // Si pas de profil ou prénom manquant (connexion Google/Apple)
+  if(!me||!me.name){
+    // Crée un profil vide si nécessaire
+    if(!me){
+      const code=genCode(u.email||'user');
+      await db.from('user_profiles').insert({id:u.id,name:'',city:'',code,email:u.email||''});
+      const {data:d2}=await db.from('user_profiles').select('*').eq('id',u.id).single();
+      me=d2;
+    }
+    show('s-complete-profile');
+    throw new Error('profile_incomplete');
+  }
+}
+
+async function saveCompleteProfile(){
+  const name=document.getElementById('cp-name').value.trim();
+  const city=document.getElementById('cp-city').value.trim();
+  const err=document.getElementById('cp-err');
+  if(!name){err.textContent='Entre ton prénom.';err.classList.add('on');return;}
+  const btn=document.getElementById('cp-btn');btn.disabled=true;btn.textContent='Enregistrement...';
+  await db.from('user_profiles').update({name,city}).eq('id',me.id);
+  me.name=name;me.city=city;
+  btn.disabled=false;
+  show(null);showHome();
+}
 
 // HOME
 async function showHome(){
@@ -3815,7 +3856,7 @@ async function init(){
     if(!seen){showOnboarding();}else{show('s-login');}
     return;
   }
-  await loadMe(session.user);show(null);showHome();initPWA();
+  try{await loadMe(session.user);show(null);showHome();initPWA();}catch(e){if(e.message!=='profile_incomplete')throw e;}
 }
 // POSTCARD READ
 let currentPostcard=null;
