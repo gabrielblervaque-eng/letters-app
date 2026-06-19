@@ -1116,6 +1116,15 @@ input[type=range].iph-zoom-v::-webkit-slider-thumb{-webkit-appearance:none;width
       <div class="set-preview"><div class="sp-name" id="sp-name">Letters</div><div class="sp-text">Le ciel ce soir était tellement beau...</div><div class="sp-sign" id="sp-sign">x</div></div>
     </div>
     <button class="btn p" onclick="saveSettings()">Sauvegarder</button>
+    <div><div class="set-sec">Notifications</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">
+        <span style="font-size:14px;color:var(--text2)">Nouvelle lettre reçue</span>
+        <button id="notif-toggle" onclick="toggleNotifications()" style="width:48px;height:28px;border-radius:14px;border:none;cursor:pointer;background:var(--border-med);position:relative;transition:background .2s">
+          <span id="notif-thumb" style="position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span>
+        </button>
+      </div>
+      <div id="notif-status" style="font-size:12px;color:var(--text3);margin-top:4px"></div>
+    </div>
     <div><div class="set-sec">À propos</div>
       <div style="display:flex;flex-direction:column;gap:10px">
         <a href="https://letters-app.xyz/privacy" target="_blank" style="font-size:13px;color:var(--text2);text-decoration:none;display:flex;align-items:center;gap:6px">🔒 Politique de confidentialité</a>
@@ -1259,6 +1268,7 @@ async function showHome(){
   document.getElementById('uc-name').textContent=me.name;
   document.getElementById('uc-code').textContent=me.code;
   await loadSpaces();
+  initNotifications();
 }
 async function loadSpaces(){
   const el=document.getElementById('spaces-list');
@@ -3985,6 +3995,77 @@ function skipTuto(){
   const ov=document.getElementById('tuto-overlay');
   if(ov){ov.classList.remove('on');ov.style.display='none';}
   try{localStorage.setItem('ltrs_tuto_done','1');}catch(e){}
+}
+
+
+// NOTIFICATIONS PUSH (APNs via Capacitor)
+let notifEnabled=false;
+
+async function initNotifications(){
+  try{
+    if(!window.Capacitor||!window.Capacitor.isNativePlatform())return;
+    const {PushNotifications}=window.Capacitor.Plugins;
+    if(!PushNotifications)return;
+    const {data:row}=await db.from('push_subscriptions').select('apns_token').eq('user_id',me.id).single();
+    if(row&&row.apns_token){setNotifUI(true);}else{setNotifUI(false);}
+  }catch(e){setNotifUI(false);}
+}
+
+async function toggleNotifications(){
+  if(!window.Capacitor||!window.Capacitor.isNativePlatform()){
+    const st=document.getElementById('notif-status');
+    if(st)st.textContent="Notifications disponibles uniquement dans l'app iOS.";
+    return;
+  }
+  if(notifEnabled){
+    await db.from('push_subscriptions').delete().eq('user_id',me.id);
+    setNotifUI(false);
+    toast('Notifications désactivées');
+  }else{
+    await registerPush();
+  }
+}
+
+async function registerPush(){
+  try{
+    const {PushNotifications}=window.Capacitor.Plugins;
+    const perm=await PushNotifications.requestPermissions();
+    if(perm.receive!=='granted'){
+      const st=document.getElementById('notif-status');
+      if(st)st.textContent="Permission refusée. Active les notifications dans les Réglages iOS.";
+      return;
+    }
+    await PushNotifications.register();
+    PushNotifications.addListener('registration',async(token)=>{
+      await db.from('push_subscriptions').upsert({user_id:me.id,apns_token:token.value,subscription:{}},{onConflict:'user_id'});
+      setNotifUI(true);
+      toast('Notifications activées ✦');
+    });
+    PushNotifications.addListener('registrationError',(err)=>{
+      const st=document.getElementById('notif-status');
+      if(st)st.textContent="Erreur d'enregistrement.";
+    });
+  }catch(e){
+    const st=document.getElementById('notif-status');
+    if(st)st.textContent='Erreur : '+e.message;
+  }
+}
+
+function setNotifUI(enabled){
+  notifEnabled=enabled;
+  const toggle=document.getElementById('notif-toggle');
+  const thumb=document.getElementById('notif-thumb');
+  const status=document.getElementById('notif-status');
+  if(!toggle||!thumb)return;
+  if(enabled){
+    toggle.style.background='var(--a)';
+    thumb.style.left='23px';
+    if(status)status.textContent='Activées — tu seras notifié·e à chaque lettre.';
+  }else{
+    toggle.style.background='var(--border-med)';
+    thumb.style.left='3px';
+    if(status)status.textContent='Désactivées';
+  }
 }
 
 async function askDeleteAccount(){
