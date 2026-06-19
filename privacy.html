@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Politique de confidentialité — Letters</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --cream: #faf8f5;
+      --ink: #1a1814;
+      --muted: #7a7670;
+      --rule: #e8e4de;
+      --accent: #c17f4a;
+    }
+
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'Georgia', serif;
+      font-size: 17px;
+      line-height: 1.75;
+      padding: 0 24px;
+    }
+
+    header {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 64px 0 40px;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .wordmark {
+      font-family: 'Georgia', serif;
+      font-size: 13px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: normal;
+      line-height: 1.3;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+
+    .meta {
+      font-size: 14px;
+      color: var(--muted);
+      font-family: -apple-system, sans-serif;
+    }
+
+    main {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 48px 0 96px;
+    }
+
+    section {
+      margin-bottom: 48px;
+    }
+
+    h2 {
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-family: -apple-system, sans-serif;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+
+    p {
+      margin-bottom: 16px;
+      color: var(--ink);
+    }
+
+    p:last-child {
+      margin-bottom: 0;
+    }
+
+    ul {
+      list-style: none;
+      margin-bottom: 16px;
+    }
+
+    ul li {
+      padding-left: 20px;
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    ul li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+
+    a {
+      color: var(--ink);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .divider {
+      width: 32px;
+      height: 1px;
+      background: var(--rule);
+      margin: 48px 0;
+    }
+
+    .contact-block {
+      background: white;
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 28px 32px;
+    }
+
+    .contact-block p {
+      font-size: 15px;
+      color: var(--muted);
+      font-family: -apple-system, sans-serif;
+      margin-bottom: 8px;
+    }
+
+    .contact-block a {
+      font-family: -apple-system, sans-serif;
+      font-size: 15px;
+    }
+
+    footer {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 24px 0 48px;
+      border-top: 1px solid var(--rule);
+    }
+
+    footer p {
+      font-size: 13px;
+      color: var(--muted);
+      font-family: -apple-system, sans-serif;
+    }
+
+    footer a {
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="wordmark">Letters</div>
+    <h1>Politique de confidentialité</h1>
+    <p class="meta">Dernière mise à jour : juin 2025</p>
+  </header>
+
+  <main>
+
+    <section>
+      <h2>Ce que Letters est</h2>
+      <p>Letters est une application de correspondance intime entre deux personnes. Elle est conçue pour être un espace privé, calme, et sans publicité.</p>
+      <p>Cette politique explique quelles données sont collectées, pourquoi, et comment vous pouvez les contrôler.</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>Données collectées</h2>
+      <p>Letters collecte uniquement ce qui est nécessaire au fonctionnement de l'application :</p>
+      <ul>
+        <li>Adresse e-mail (pour créer votre compte et vous identifier)</li>
+        <li>Contenu des lettres que vous rédigez et envoyez</li>
+        <li>Photos que vous choisissez de partager</li>
+        <li>Localisations que vous épinglez manuellement sur la carte partagée</li>
+        <li>Préférences de l'application (nom, ville, salutation, signature)</li>
+      </ul>
+      <p>Nous ne collectons pas votre localisation GPS en temps réel. Nous ne collectons pas de données comportementales, de tracking publicitaire, ni d'informations sur votre appareil au-delà de ce qui est strictement nécessaire.</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>Pourquoi ces données</h2>
+      <ul>
+        <li>L'e-mail permet de créer votre compte et de vous connecter en toute sécurité.</li>
+        <li>Les lettres et photos constituent le cœur même du service — sans elles, Letters n'existe pas.</li>
+        <li>Les localisations épinglées servent à alimenter votre carte partagée, uniquement visible par vous et votre partenaire.</li>
+        <li>Les préférences personnalisent votre expérience (salutation, signature).</li>
+      </ul>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>Hébergement et sécurité</h2>
+      <p>Vos données sont hébergées sur <strong>Supabase</strong>, une infrastructure sécurisée conforme aux standards de l'industrie, avec chiffrement en transit (HTTPS) et au repos.</p>
+      <p>Vos lettres ne sont accessibles qu'à vous et à la personne avec qui vous partagez un espace. Personne d'autre — y compris l'équipe Letters — ne peut lire votre correspondance.</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>Partage des données</h2>
+      <p>Vos données ne sont jamais vendues, louées, ni partagées avec des tiers à des fins publicitaires ou commerciales.</p>
+      <p>Letters n'affiche aucune publicité et ne monétise pas vos données.</p>
+      <p>Les seuls sous-traitants ayant accès à vos données sont ceux nécessaires au fonctionnement technique du service (hébergement, stockage). Ils sont soumis à des obligations de confidentialité strictes.</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>Vos droits (RGPD)</h2>
+      <p>Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez des droits suivants :</p>
+      <ul>
+        <li><strong>Accès</strong> — vous pouvez demander une copie de vos données personnelles.</li>
+        <li><strong>Rectification</strong> — vous pouvez corriger vos informations à tout moment depuis les paramètres de l'application.</li>
+        <li><strong>Suppression</strong> — vous pouvez supprimer votre compte et l'intégralité de vos données depuis les paramètres de l'application.</li>
+        <li><strong>Opposition</strong> — vous pouvez vous opposer à tout traitement de vos données.</li>
+        <li><strong>Portabilité</strong> — vous pouvez demander l'export de vos données dans un format lisible.</li>
+      </ul>
+      <p>Pour exercer ces droits, contactez-nous à l'adresse ci-dessous. Nous répondons sous 30 jours.</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>Conservation des données</h2>
+      <p>Vos données sont conservées tant que votre compte est actif. En cas de suppression du compte, toutes vos données personnelles (lettres, photos, préférences, e-mail) sont supprimées de façon définitive et irréversible dans un délai de 30 jours.</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>Notifications</h2>
+      <p>Si vous activez les notifications push, Letters peut vous envoyer des alertes lorsque vous recevez une nouvelle lettre. Vous pouvez désactiver ces notifications à tout moment depuis les réglages de votre appareil.</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>Modifications</h2>
+      <p>Cette politique peut être mise à jour occasionnellement. En cas de modification substantielle, vous serez informé via l'application. La date de mise à jour est indiquée en haut de cette page.</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <section>
+      <h2>Contact</h2>
+      <div class="contact-block">
+        <p>Pour toute question relative à vos données personnelles :</p>
+        <a href="mailto:hello@letters-app.xyz">hello@letters-app.xyz</a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p><a href="https://letters-app.xyz">← Retour à Letters</a></p>
+  </footer>
+
+</body>
+</html>
