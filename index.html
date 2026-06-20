@@ -3354,15 +3354,12 @@ async function getOrGenerateQuestion(){
 
 async function generateQuestionAI(spicy=false){
   try{
-    const today=new Date().toISOString().split('T')[0];
     const type=spicy?'spicy':'normal';
+    // Pioche aléatoire dans toute la table, sans filtre date
     const {data}=await db.from('daily_questions')
       .select('question')
-      .eq('date',today)
-      .eq('type',type)
-      .order('created_at',{ascending:false});
+      .eq('type',type);
     if(data&&data.length>0){
-      // Pioche aléatoirement parmi les questions du jour
       const q=data[Math.floor(Math.random()*data.length)];
       return q.question;
     }
