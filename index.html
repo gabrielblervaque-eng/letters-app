@@ -4439,6 +4439,7 @@ async function init(){
 // POSTCARD READ
 let currentPostcard=null;
 async function openPostcardRead(l){
+  disableZoom();
   currentPostcard=l;
   const mine=l.from_id===me.id;
   const fromName=mine?me.name:(l.from_name||cs.partner_name);
@@ -4489,6 +4490,7 @@ async function openPostcardRead(l){
 }
 function closePostcardRead(){
   document.getElementById('postcard-read-view').classList.remove('on');
+  enableZoom();
   currentPostcard=null;
 }
 async function heartCurrentPostcard(){
@@ -4522,6 +4524,7 @@ function pcFmtSize(size){
 }
 function openPostcard(){
   closeDrawer();
+  disableZoom();
   pcPhotoFile=null;
   document.getElementById('pc-left').innerHTML='<div class="pc-left-hint">📷<br>Ta photo ici</div>';
   const ctrl=document.getElementById('pc-crop-ctrl');
@@ -4541,6 +4544,7 @@ function openPostcard(){
 }
 function closePostcard(){
   document.getElementById('postcard-view').classList.remove('on');
+  enableZoom();
 }
 function onPCPhoto(input){
   const file=input.files[0];if(!file)return;
@@ -4823,6 +4827,25 @@ async function askDeleteAccount(){
 }
 
 // HAPTIQUES
+// ZOOM LOCK pour postcard
+function disableZoom(){
+  // Modifier le meta viewport
+  const mv=document.querySelector('meta[name=viewport]');
+  if(mv)mv.content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+  // Bloquer pinch sur les vues postcard
+  document.getElementById('postcard-view')?.addEventListener('touchmove',blockPinch,{passive:false});
+  document.getElementById('postcard-read-view')?.addEventListener('touchmove',blockPinch,{passive:false});
+}
+function enableZoom(){
+  const mv=document.querySelector('meta[name=viewport]');
+  if(mv)mv.content='width=device-width, initial-scale=1.0, viewport-fit=cover';
+  document.getElementById('postcard-view')?.removeEventListener('touchmove',blockPinch);
+  document.getElementById('postcard-read-view')?.removeEventListener('touchmove',blockPinch);
+}
+function blockPinch(e){
+  if(e.touches&&e.touches.length>1)e.preventDefault();
+}
+
 // SONS
 let audioCtx=null;
 function getAudioCtx(){
