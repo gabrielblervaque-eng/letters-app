@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Letters — 30 Screens</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#F2F2F2;font-family:'Inter',sans-serif;padding:32px 24px;}
+
+/* LAYOUT */
+.section-title{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#999;margin:32px 0 12px;padding-left:4px;}
+.row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px;}
+.col{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.lbl{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#AAA;}
+
+/* PHONE */
+.phone{width:200px;min-width:200px;height:430px;background:#FFF;border-radius:36px;border:.5px solid #E0E0E0;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.07);}
+
+/* TOKENS */
+:root{
+  --black:#000;--white:#FFF;--gray1:#F8F8F8;--gray2:#F0F0F0;--gray3:#E0E0E0;
+  --muted:#AAA;--dark:#555;--terra:#C4714A;--terra-light:#FDF0EA;
+}
+
+/* TOPBAR */
+.tb{padding:14px 16px 10px;display:flex;align-items:center;justify-content:space-between;background:var(--white);flex-shrink:0;}
+.tb-l{display:flex;align-items:center;gap:8px;}
+.back{font-size:20px;font-weight:300;color:var(--black);line-height:1;margin-right:2px;}
+.av{width:24px;height:24px;border-radius:50%;background:var(--black);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--white);flex-shrink:0;}
+.av.light{background:var(--gray2);color:var(--black);}
+.av.terra{background:var(--terra);color:var(--white);}
+.tb-info{}
+.tb-name{font-size:11px;font-weight:600;color:var(--black);letter-spacing:-.01em;}
+.tb-sub{font-size:8px;color:var(--muted);font-weight:400;}
+.tb-r{font-size:13px;color:var(--muted);}
+.tb-title{font-size:13px;font-weight:600;color:var(--black);}
+
+/* SECTION HEADER */
+.s-head{padding:16px 16px 6px;flex-shrink:0;}
+.s-tag{font-size:8px;font-weight:700;color:var(--terra);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+.s-title{font-size:26px;font-weight:700;color:var(--black);letter-spacing:-.03em;line-height:1.1;}
+.s-sub{font-size:9px;color:var(--muted);margin-top:4px;}
+.divider{height:.5px;background:var(--gray2);margin:0 16px;flex-shrink:0;}
+
+/* LETTER CARDS */
+.list{padding:8px 12px;display:flex;flex-direction:column;gap:5px;flex:1;overflow:hidden;}
+.card{background:var(--white);border-radius:14px;padding:10px 12px;display:flex;gap:8px;align-items:flex-start;box-shadow:0 1px 8px rgba(0,0,0,.05);border:.5px solid transparent;flex-shrink:0;}
+.card.new{border-color:var(--black);}
+.card-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.card-av.e{background:var(--gray1);color:var(--black);}
+.card-av.g{background:var(--black);color:var(--white);}
+.card-body{flex:1;min-width:0;}
+.card-row{display:flex;justify-content:space-between;align-items:baseline;}
+.card-name{font-size:10px;font-weight:600;color:var(--black);}
+.card-time{font-size:8px;color:var(--muted);}
+.card-prev{font-family:'EB Garamond',serif;font-size:11px;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;font-style:italic;}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--terra);margin-top:5px;flex-shrink:0;}
+
+/* BOTTOM NAV */
+.bot-nav{padding:8px 0 10px;display:flex;align-items:center;justify-content:space-around;border-top:.5px solid var(--gray2);background:var(--white);flex-shrink:0;margin-top:auto;}
+.ni{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.ni-ic{font-size:14px;color:var(--muted);}
+.ni-ic.on{color:var(--black);}
+.ni-lb{font-size:7px;color:var(--muted);font-weight:500;}
+.ni-lb.on{color:var(--black);font-weight:700;}
+.fab{width:32px;height:32px;border-radius:50%;background:var(--black);display:flex;align-items:center;justify-content:center;color:var(--white);font-size:14px;}
+.fab.terra{background:var(--terra);}
+
+/* LETTER OPEN */
+.open-wrap{flex:1;padding:8px 12px 10px;display:flex;flex-direction:column;overflow:hidden;}
+.open-card{background:var(--gray1);border-radius:16px;padding:14px;flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.loc{font-size:8px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;}
+.salut{font-family:'EB Garamond',serif;font-size:18px;color:var(--black);line-height:1.3;margin-bottom:6px;}
+.sep{width:20px;height:1.5px;background:var(--terra);margin-bottom:10px;flex-shrink:0;}
+.body-txt{font-family:'EB Garamond',serif;font-size:11.5px;color:var(--dark);line-height:1.75;flex:1;overflow:hidden;}
+.sig{font-family:'EB Garamond',serif;font-style:italic;font-size:12px;color:var(--terra);margin-top:8px;}
+.react-pill{display:inline-flex;align-items:center;gap:3px;margin-top:8px;background:var(--white);border-radius:20px;padding:3px 8px;font-size:8px;color:var(--terra);font-weight:700;border:.5px solid var(--gray2);}
+
+/* WRITE */
+.send-btn{background:var(--black);color:var(--white);border-radius:20px;padding:5px 11px;font-size:8px;font-weight:700;letter-spacing:.04em;}
+.tool-row{padding:6px 14px;display:flex;gap:12px;border-bottom:.5px solid var(--gray2);flex-shrink:0;}
+.tool-item{font-size:8px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;padding-bottom:2px;}
+.tool-item.on{color:var(--black);border-bottom:1.5px solid var(--black);}
+.write-card{flex:1;margin:8px 12px;background:var(--gray1);border-radius:14px;padding:12px;display:flex;flex-direction:column;}
+.w-meta{font-size:8px;font-weight:600;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;}
+.w-salut{font-family:'EB Garamond',serif;font-size:14px;color:var(--black);margin-bottom:6px;}
+.w-body{font-family:'EB Garamond',serif;font-size:11px;color:var(--dark);line-height:1.75;flex:1;}
+.cursor{display:inline-block;width:1.5px;height:13px;background:var(--terra);vertical-align:middle;animation:blink 1.1s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.fmt-bar{padding:6px 14px;display:flex;align-items:center;justify-content:space-between;border-top:.5px solid var(--gray2);flex-shrink:0;}
+.fmt-btns{display:flex;gap:10px;}
+.fb{font-size:11px;font-weight:600;color:var(--muted);}
+.fb.b{font-weight:800;color:var(--black);}
+.fb.i{font-style:italic;}
+.fb.u{text-decoration:underline;}
+
+/* HOME */
+.home-spaces{padding:8px 12px;display:flex;flex-direction:column;gap:5px;flex:1;}
+.space-card{background:var(--white);border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 8px rgba(0,0,0,.05);}
+.space-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.space-info{flex:1;}
+.space-name{font-size:11px;font-weight:600;color:var(--black);}
+.space-loc{font-size:8px;color:var(--muted);}
+.space-badge{width:16px;height:16px;border-radius:50%;background:var(--terra);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--white);}
+.add-btn{background:var(--gray1);border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;border:.5px dashed var(--gray3);}
+.add-icon{width:34px;height:34px;border-radius:50%;background:var(--gray2);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--muted);}
+.add-text{font-size:11px;color:var(--muted);}
+
+/* POSTCARD */
+.postcard-area{margin:10px 12px;border-radius:16px;background:var(--gray1);overflow:hidden;flex-shrink:0;}
+.postcard-img{height:90px;background:linear-gradient(135deg,#2C2820,#5A4A3A);display:flex;align-items:center;justify-content:center;font-size:28px;}
+.postcard-msg{padding:10px 12px;font-family:'EB Garamond',serif;font-size:11px;color:var(--dark);line-height:1.6;font-style:italic;}
+.postcard-sig{padding:0 12px 10px;font-family:'EB Garamond',serif;font-style:italic;font-size:10px;color:var(--terra);}
+
+/* ALBUM */
+.album-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px 12px;flex:1;}
+.album-cell{border-radius:12px;background:var(--gray1);display:flex;align-items:center;justify-content:center;font-size:24px;aspect-ratio:1;}
+.album-add{border-radius:12px;background:var(--gray2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:.5px dashed var(--gray3);aspect-ratio:1;}
+.album-add-icon{font-size:18px;color:var(--muted);}
+.album-add-txt{font-size:7px;color:var(--muted);font-weight:600;}
+
+/* ONBOARDING */
+.ob-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 20px 10px;text-align:center;}
+.ob-emoji{font-size:36px;margin-bottom:16px;}
+.ob-title{font-family:'EB Garamond',serif;font-size:22px;color:var(--black);line-height:1.2;margin-bottom:8px;}
+.ob-desc{font-size:9px;color:var(--muted);line-height:1.6;max-width:140px;}
+.ob-foot{padding:12px 20px 16px;display:flex;flex-direction:column;gap:8px;flex-shrink:0;}
+.ob-dots{display:flex;gap:4px;justify-content:center;margin-bottom:4px;}
+.ob-dot{width:6px;height:6px;border-radius:50%;background:var(--gray2);}
+.ob-dot.on{background:var(--black);width:18px;border-radius:4px;}
+.btn-primary{background:var(--black);color:var(--white);border-radius:12px;padding:10px;font-size:11px;font-weight:600;text-align:center;}
+.btn-ghost{color:var(--muted);font-size:9px;text-align:center;}
+
+/* AUTH */
+.auth-body{flex:1;padding:16px 16px 0;display:flex;flex-direction:column;}
+.auth-logo{font-family:'EB Garamond',serif;font-style:italic;font-size:28px;color:var(--black);letter-spacing:-.02em;margin-bottom:4px;}
+.auth-sub{font-size:9px;color:var(--muted);margin-bottom:20px;}
+.field-label{font-size:8px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;}
+.field{background:var(--gray1);border-radius:10px;padding:10px 12px;font-size:11px;color:var(--black);margin-bottom:10px;border:.5px solid var(--gray2);}
+.field.active{border-color:var(--black);}
+.auth-foot{padding:12px 16px 16px;display:flex;flex-direction:column;gap:6px;flex-shrink:0;}
+.btn-social{background:var(--gray1);border-radius:12px;padding:9px;font-size:10px;text-align:center;color:var(--black);border:.5px solid var(--gray2);}
+.auth-tabs{display:flex;background:var(--gray1);border-radius:10px;padding:2px;margin-bottom:16px;flex-shrink:0;}
+.auth-tab{flex:1;text-align:center;padding:6px;font-size:9px;font-weight:600;color:var(--muted);border-radius:8px;}
+.auth-tab.on{background:var(--white);color:var(--black);}
+
+/* QUESTION PANEL */
+.panel-overlay{flex:1;background:rgba(0,0,0,.04);display:flex;flex-direction:column;justify-content:flex-end;}
+.panel{background:var(--white);border-radius:20px 20px 0 0;padding:16px;display:flex;flex-direction:column;gap:10px;}
+.panel-handle{width:32px;height:3px;background:var(--gray2);border-radius:2px;align-self:center;margin-bottom:4px;}
+.panel-title{font-size:13px;font-weight:700;color:var(--black);}
+.panel-card{background:var(--gray1);border-radius:14px;padding:12px;}
+.panel-q{font-family:'EB Garamond',serif;font-size:13px;color:var(--black);line-height:1.5;margin-bottom:8px;}
+.panel-reply{background:var(--black);color:var(--white);border-radius:10px;padding:8px 12px;font-size:9px;font-weight:600;display:inline-block;}
+.spicy-row{display:flex;align-items:center;justify-content:space-between;background:var(--gray1);border-radius:12px;padding:10px 12px;}
+.spicy-txt{font-size:10px;font-weight:600;color:var(--black);}
+.toggle{width:32px;height:18px;border-radius:9px;background:var(--gray2);position:relative;}
+.toggle.on{background:var(--terra);}
+.toggle-knob{width:14px;height:14px;border-radius:50%;background:var(--white);position:absolute;top:2px;left:2px;transition:.2s;}
+.toggle.on .toggle-knob{left:16px;}
+
+/* DRAWER */
+.drawer-overlay{flex:1;display:flex;}
+.drawer-side{width:75%;background:var(--white);display:flex;flex-direction:column;padding:20px 16px;gap:14px;}
+.drawer-logo{font-family:'EB Garamond',serif;font-style:italic;font-size:20px;color:var(--black);}
+.drawer-space{font-size:11px;font-weight:600;color:var(--black);}
+.drawer-bar{background:var(--gray2);border-radius:4px;height:4px;margin-bottom:2px;}
+.drawer-bar-fill{background:var(--black);border-radius:4px;height:4px;width:50%;}
+.drawer-bar-meta{display:flex;justify-content:space-between;font-size:8px;color:var(--muted);}
+.drawer-divider{height:.5px;background:var(--gray2);}
+.drawer-section{font-size:8px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;}
+.drawer-item{font-size:11px;color:var(--black);display:flex;align-items:center;gap:8px;}
+.drawer-item-icon{font-size:12px;width:20px;}
+.drawer-rest{flex:1;background:rgba(0,0,0,.3);}
+
+/* MODAL */
+.modal-overlay{flex:1;background:rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal{background:var(--white);border-radius:20px;padding:20px;width:100%;display:flex;flex-direction:column;gap:12px;}
+.modal-title{font-size:16px;font-weight:700;color:var(--black);}
+.modal-desc{font-size:9px;color:var(--muted);line-height:1.6;}
+.modal-btns{display:flex;gap:8px;}
+.modal-btn{flex:1;border-radius:12px;padding:9px;font-size:10px;font-weight:600;text-align:center;}
+.modal-btn.cancel{background:var(--gray1);color:var(--muted);}
+.modal-btn.confirm{background:var(--black);color:var(--white);}
+.modal-btn.danger{background:#EF4444;color:var(--white);}
+
+/* ACTION SHEET */
+.sheet-overlay{flex:1;background:rgba(0,0,0,.08);display:flex;flex-direction:column;justify-content:flex-end;}
+.sheet{background:var(--white);border-radius:20px 20px 0 0;padding:16px;display:flex;flex-direction:column;}
+.sheet-handle{width:32px;height:3px;background:var(--gray2);border-radius:2px;align-self:center;margin-bottom:12px;}
+.sheet-item{padding:12px 0;font-size:12px;color:var(--black);border-bottom:.5px solid var(--gray2);}
+.sheet-item.danger{color:#EF4444;}
+.sheet-item.cancel{color:var(--muted);border-bottom:none;text-align:center;font-size:11px;}
+
+/* SETTINGS */
+.settings-body{flex:1;padding:16px;display:flex;flex-direction:column;gap:12px;overflow:hidden;}
+.settings-section{font-size:8px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;}
+.settings-group{background:var(--gray1);border-radius:14px;overflow:hidden;}
+.settings-row{padding:10px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:.5px solid var(--gray2);}
+.settings-row:last-child{border-bottom:none;}
+.settings-key{font-size:10px;color:var(--black);}
+.settings-val{font-size:10px;color:var(--muted);}
+
+/* LOADER */
+.loader-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
+.loader-logo{font-family:'EB Garamond',serif;font-style:italic;font-size:40px;color:var(--black);letter-spacing:-.02em;}
+.loader-dots{display:flex;gap:6px;}
+.loader-dot{width:6px;height:6px;border-radius:50%;background:var(--black);opacity:.3;}
+.loader-dot:nth-child(2){opacity:.6;}
+.loader-dot:nth-child(3){opacity:1;}
+
+/* ANIM ENVOI */
+.anim-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;}
+.anim-emoji{font-size:48px;animation:float 2s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.anim-title{font-family:'EB Garamond',serif;font-size:20px;color:var(--black);}
+.anim-stars{font-size:12px;color:var(--terra);letter-spacing:4px;}
+
+/* POPUP DÉBLOCAGE */
+.popup-overlay{flex:1;background:rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;padding:20px;}
+.popup{background:var(--white);border-radius:20px;padding:20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.popup-icon{font-size:36px;}
+.popup-title{font-size:14px;font-weight:700;color:var(--black);}
+.popup-desc{font-size:9px;color:var(--muted);line-height:1.6;}
+
+/* MOOD PANEL */
+.mood-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+.mood-item{font-size:20px;text-align:center;padding:4px;border-radius:10px;}
+.mood-item.on{background:var(--gray1);border:.5px solid var(--black);}
+.mood-elysa{font-size:9px;color:var(--muted);text-align:center;}
+
+/* POSTCARD CREATE */
+.pc-photo{height:100px;margin:8px 12px 0;border-radius:14px;background:var(--gray1);display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;}
+.pc-msg-area{margin:8px 12px;background:var(--gray1);border-radius:12px;padding:10px;flex:1;}
+.pc-msg-label{font-size:8px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;}
+.pc-msg-txt{font-family:'EB Garamond',serif;font-size:11px;color:var(--muted);font-style:italic;}
+.sticker-row{padding:4px 12px 8px;display:flex;gap:6px;flex-shrink:0;}
+.sticker{font-size:18px;}
+
+/* PROFIL COMPLET */
+.profile-av-big{width:56px;height:56px;border-radius:50%;background:var(--black);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:var(--white);margin:0 auto 8px;}
+</style>
+<body>
+
+<!-- ===== ROW 1 : ONBOARDING ===== -->
+<div class="section-title">Onboarding & Auth</div>
+<div class="row">
+
+  <!-- 01 LOADER -->
+  <div class="col"><div class="lbl">01 · Loader</div>
+  <div class="phone">
+    <div class="loader-body">
+      <div class="loader-logo">Letters</div>
+      <div class="loader-dots"><div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div></div>
+    </div>
+  </div></div>
+
+  <!-- 02 ONBOARDING 1 -->
+  <div class="col"><div class="lbl">02 · Onboarding 1</div>
+  <div class="phone">
+    <div class="ob-body">
+      <div class="ob-emoji">✉️</div>
+      <div class="ob-title">Un espace sans pression</div>
+      <div class="ob-desc">Reprendre le temps de s'écrire vraiment.</div>
+    </div>
+    <div class="ob-foot">
+      <div class="ob-dots"><div class="ob-dot on"></div><div class="ob-dot"></div><div class="ob-dot"></div></div>
+      <div class="btn-primary">Suivant →</div>
+      <div class="btn-ghost">Passer</div>
+    </div>
+  </div></div>
+
+  <!-- 03 ONBOARDING 2 -->
+  <div class="col"><div class="lbl">03 · Onboarding 2</div>
+  <div class="phone">
+    <div class="ob-body">
+      <div class="ob-emoji">🌍</div>
+      <div class="ob-title">Écris quelque chose qui vaut la peine d'être lu</div>
+      <div class="ob-desc">Pour celles et ceux qui se sont rencontrés loin.</div>
+    </div>
+    <div class="ob-foot">
+      <div class="ob-dots"><div class="ob-dot"></div><div class="ob-dot on"></div><div class="ob-dot"></div></div>
+      <div class="btn-primary">Suivant →</div>
+      <div class="btn-ghost">Passer</div>
+    </div>
+  </div></div>
+
+  <!-- 04 ONBOARDING 3 -->
+  <div class="col"><div class="lbl">04 · Onboarding 3</div>
+  <div class="phone">
+    <div class="ob-body">
+      <div class="ob-emoji" style="font-size:28px;">🔑 ✉️ 📷</div>
+      <div class="ob-title">Chaque lettre débloque quelque chose</div>
+      <div class="ob-desc" style="max-width:160px;">Questions, album, résumé IA… tout se mérite.</div>
+    </div>
+    <div class="ob-foot">
+      <div class="ob-dots"><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot on"></div></div>
+      <div class="btn-primary">Commencer ✦</div>
+    </div>
+  </div></div>
+
+  <!-- 05 CONNEXION -->
+  <div class="col"><div class="lbl">05 · Connexion</div>
+  <div class="phone">
+    <div class="auth-body">
+      <div class="auth-logo">Letters</div>
+      <div class="auth-sub">L'art de s'écrire, réinventé.</div>
+      <div class="auth-tabs">
+        <div class="auth-tab on">Connexion</div>
+        <div class="auth-tab">Créer un compte</div>
+      </div>
+      <div class="field-label">Email</div>
+      <div class="field active">gabriel@gmail.com</div>
+      <div class="field-label">Mot de passe</div>
+      <div class="field">••••••••</div>
+      <div style="font-size:9px;color:var(--terra);text-align:right;margin-top:-4px;margin-bottom:10px;">Mot de passe oublié ?</div>
+    </div>
+    <div class="auth-foot">
+      <div class="btn-primary">Se connecter</div>
+      <div class="btn-social">Continuer avec Google</div>
+      <div class="btn-social">Continuer avec Apple</div>
+    </div>
+  </div></div>
+
+  <!-- 06 INSCRIPTION -->
+  <div class="col"><div class="lbl">06 · Inscription</div>
+  <div class="phone">
+    <div class="auth-body">
+      <div class="auth-logo">Letters</div>
+      <div class="auth-sub">L'art de s'écrire, réinventé.</div>
+      <div class="auth-tabs">
+        <div class="auth-tab">Connexion</div>
+        <div class="auth-tab on">Créer un compte</div>
+      </div>
+      <div class="field-label">Prénom</div>
+      <div class="field active">Gabriel</div>
+      <div class="field-label">Email</div>
+      <div class="field">gabriel@gmail.com</div>
+      <div class="field-label">Mot de passe</div>
+      <div class="field">••••••••</div>
+    </div>
+    <div class="auth-foot">
+      <div class="btn-primary">Créer mon compte</div>
+      <div style="font-size:8px;color:var(--muted);text-align:center;">En créant un compte, tu acceptes nos conditions.</div>
+    </div>
+  </div></div>
+
+</div>
+
+<!-- ===== ROW 2 : AUTH + PROFIL ===== -->
+<div class="row">
+
+  <!-- 07 MOT DE PASSE -->
+  <div class="col"><div class="lbl">07 · Reset MDP</div>
+  <div class="phone">
+    <div class="tb"><div class="tb-l"><span class="back">‹</span></div></div>
+    <div class="auth-body" style="align-items:center;text-align:center;justify-content:center;">
+      <div style="font-size:40px;margin-bottom:16px;">🔑</div>
+      <div style="font-size:16px;font-weight:700;color:var(--black);margin-bottom:6px;">Mot de passe oublié ?</div>
+      <div style="font-size:9px;color:var(--muted);margin-bottom:20px;">Entre ton email pour recevoir un lien de réinitialisation.</div>
+      <div style="width:100%">
+        <div class="field-label">Email</div>
+        <div class="field active">gabriel@gmail.com</div>
+      </div>
+    </div>
+    <div class="auth-foot"><div class="btn-primary">Envoyer le lien</div></div>
+  </div></div>
+
+  <!-- 08 NOUVEAU MDP -->
+  <div class="col"><div class="lbl">08 · Nouveau MDP</div>
+  <div class="phone">
+    <div class="tb"><div class="tb-l"><span class="back">‹</span></div></div>
+    <div class="auth-body" style="align-items:center;text-align:center;justify-content:center;">
+      <div style="font-size:40px;margin-bottom:16px;">🔒</div>
+      <div style="font-size:16px;font-weight:700;color:var(--black);margin-bottom:20px;">Nouveau mot de passe</div>
+      <div style="width:100%">
+        <div class="field-label">Nouveau mot de passe</div>
+        <div class="field active">••••••••</div>
+        <div class="field-label">Confirmer</div>
+        <div class="field">••••••••</div>
+      </div>
+    </div>
+    <div class="auth-foot"><div class="btn-primary">Mettre à jour</div></div>
+  </div></div>
+
+  <!-- 09 COMPLÉTER PROFIL -->
+  <div class="col"><div class="lbl">09 · Profil</div>
+  <div class="phone">
+    <div class="auth-body" style="padding-top:24px;">
+      <div class="auth-logo" style="text-align:center;width:100%;">Letters</div>
+      <div style="font-size:16px;font-weight:700;color:var(--black);margin:12px 0 4px;">Complète ton profil</div>
+      <div style="font-size:9px;color:var(--muted);margin-bottom:20px;">Pour que l'autre sache qui tu es.</div>
+      <div class="field-label">Ton prénom</div>
+      <div class="field active">Gabriel</div>
+      <div class="field-label">Ta ville</div>
+      <div class="field">Lille, France</div>
+    </div>
+    <div class="auth-foot"><div class="btn-primary">C'est parti ✦</div></div>
+  </div></div>
+
+  <!-- 10 HOME -->
+  <div class="col"><div class="lbl">10 · Home</div>
+  <div class="phone">
+    <div class="tb">
+      <div>
+        <div style="font-family:'EB Garamond',serif;font-style:italic;font-size:22px;color:var(--black);">Letters</div>
+      </div>
+      <div class="av">G</div>
+    </div>
+    <div class="s-head">
+      <div class="s-tag">Tes espaces</div>
+      <div class="s-title">Correspondances</div>
+    </div>
+    <div class="home-spaces">
+      <div class="space-card">
+        <div class="space-av" style="background:#F0EBE3;color:var(--terra);">E</div>
+        <div class="space-info">
+          <div class="space-name">Elysa & Gabriel</div>
+          <div class="space-loc">Lille ↔ Paris</div>
+        </div>
+        <div class="space-badge">3</div>
+      </div>
+      <div class="space-card">
+        <div class="space-av" style="background:#E8F0E8;color:#4A8A4A;">H</div>
+        <div class="space-info">
+          <div class="space-name">Hugo & Gabriel</div>
+          <div class="space-loc">Lille ↔ Lyon</div>
+        </div>
+      </div>
+      <div class="space-card">
+        <div class="space-av" style="background:#E8E8F0;color:#4A4A8A;">M</div>
+        <div class="space-info">
+          <div class="space-name">Maman & Gabriel</div>
+          <div class="space-loc">Lille ↔ Bordeaux</div>
+        </div>
+      </div>
+      <div class="add-btn">
+        <div class="add-icon">+</div>
+        <div class="add-text">Écrire à quelqu'un</div>
+      </div>
+    </div>
+    <div class="bot-nav">
+      <div class="ni"><div class="ni-ic on">🏠</div><div class="ni-lb on">Accueil</div></div>
+      <div class="fab">✎</div>
+      <div class="ni"><div class="ni-ic">☰</div><div class="ni-lb">Menu</div></div>
+    </div>
+  </div></div>
+
+</div>
+
+<!-- ===== ROW 3 : ESPACE ===== -->
+<div class="section-title">Dans l'espace</div>
+<div class="row">
+
+  <!-- 11 BOÎTE AUX LETTRES -->
+  <div class="col"><div class="lbl">11 · Boîte</div>
+  <div class="phone">
+    <div class="tb">
+      <div class="tb-l">
+        <span class="back">‹</span>
+        <div class="av">E</div>
+        <div class="tb-info">
+          <div class="tb-name">Elysa & Gabriel</div>
+          <div class="tb-sub">Lille ↔ Paris</div>
+        </div>
+      </div>
+      <div class="tb-r">···</div>
+    </div>
+    <div class="s-head">
+      <div class="s-tag">3 lettres</div>
+      <div class="s-title">Boîte aux<br>lettres</div>
+    </div>
+    <div class="divider"></div>
+    <div class="list">
+      <div class="card new">
+        <div class="card-av e">E</div>
+        <div class="card-body">
+          <div class="card-row"><span class="card-name">Elysa</span><span class="card-time">14:32</span></div>
+          <div class="card-prev">"Je repensais à notre conversation…"</div>
+        </div>
+        <div class="dot"></div>
+      </div>
+      <div class="card">
+        <div class="card-av g">G</div>
+        <div class="card-body">
+          <div class="card-row"><span class="card-name">Gabriel</span><span class="card-time">Hier</span></div>
+          <div class="card-prev">"Hier soir j'ai repensé à toi…"</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-av e">E</div>
+        <div class="card-body">
+          <div class="card-row"><span class="card-name">Elysa</span><span class="card-time">Lun</span></div>
+          <div class="card-prev">"Tu m'as tellement manqué ce week-end"</div>
+        </div>
+      </div>
+    </div>
+    <div class="bot-nav">
+      <div class="ni"><div class="ni-ic on">📬</div><div class="ni-lb on">Boîte</div></div>
+      <div class="fab">✎</div>
+      <div class="ni"><div class="ni-ic">☰</div><div class="ni-lb">Menu</div></div>
+    </div>
+  </div></div>
+
+  <!-- 12 LETTRE OUVERTE -->
+  <div class="col"><div class="lbl">12 · Lettre</div>
+  <div class="phone">
+    <div class="tb">
+      <div class="tb-l"><span class="back">‹</span></div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <span style="font-size:14px;color:var(--terra);">♥</span>
+        <span style="font-size:13px;color:var(--muted);">···</span>
+      </div>
+    </div>
+    <div class="open-wrap">
+      <div class="open-card">
+        <div class="loc">Paris · 19 juin 2026</div>
+        <div class="salut">Mon cher Gabriel,</div>
+        <div class="sep"></div>
+        <div class="body-txt">Je t'écris depuis mon appartement parisien, la pluie contre la fenêtre. Ça fait trois semaines qu'on ne s'est pas vus…<br><br>Je repensais à notre balade sur les quais. La lumière ce soir-là. Ton rire.<br><br>Tu me manques.</div>
+        <div class="sig">Elysa ✦</div>
+        <div class="react-pill">♥ 3</div>
+      </div>
+    </div>
+  </div></div>
+
+  <!-- 13 ÉCRITURE -->
+  <div class="col"><div class="lbl">13 · Écriture</div>
+  <div class="phone">
+    <div class="tb">
+      <div class="tb-l"><span class="back">‹</span><span style="font-size:11px;font-weight:600;color:var(--black);margin-left:4px;">À Elysa</span></div>
+      <div class="send-btn">Envoyer ↑</div>
+    </div>
+    <div class="tool-row">
+      <span class="tool-item on">Police</span>
+      <span class="tool-item">Couleur</span>
+      <span class="tool-item">Thème</span>
+    </div>
+    <div class="write-card">
+      <div class="w-meta">Lille · 20 juin 2026</div>
+      <div class="w-salut">Ma chère Elysa,</div>
+      <div class="w-body">Je t'écris depuis Lille où il fait encore gris. Pourtant je me sens léger depuis notre appel d'hier…<span class="cursor"></span></div>
+    </div>
+    <div class="fmt-bar">
+      <div class="fmt-btns"><span class="fb b">B</span><span class="fb i">I</span><span class="fb u">U</span></div>
+      <span style="font-size:13px;color:var(--muted);">🖼</span>
+    </div>
+  </div></div>
+
+  <!-- 14 POSTCARD CRÉATION -->
+  <div class="col"><div class="lbl">14 · Postcard créa</div>
+  <div class="phone">
+    <div class="tb">
+      <div class="tb-l"><span class="back">‹</span><span class="tb-title">Carte postale</span></div>
+      <div class="send-btn">Envoyer</div>
+    </div>
+    <div class="pc-photo">🖼</div>
+    <div style="padding:6px 12px 0;font-size:8px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;">Message</div>
+    <div class="pc-msg-area">
+      <div class="pc-msg-txt">Écris quelque chose…</div>
+    </div>
+    <div style="padding:4px 12px 2px;font-size:8px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;">Stickers</div>
+    <div class="sticker-row"><span class="sticker">⭐</span><span class="sticker">🌸</span><span class="sticker">🌙</span><span class="sticker">✨</span><span class="sticker">🔥</span></div>
+  </div></div>
+
+  <!-- 15 POSTCARD LECTURE -->
+  <div class="col"><div class="lbl">15 · Postcard vue</div>
+  <div class="phone">
+    <div class="tb">
+      <div class="tb-l"><span class="back">‹</span><span class="tb-title">De Elysa</span></div>
+      <span style="font-size:14px;color:var(--terra);">♥</span>
+    </div>
+    <div class="postcard-area" style="flex:1;margin:8px 12px;">
+      <div class="postcard-img">🌆</div>
+      <div style="padding:8px 12px 4px;font-size:8px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;">Paris, ce soir…</div>
+      <div class="postcard-msg">"Mon amour,<br>Je te regarde depuis ma fenêtre et je pense à toi."</div>
+      <div class="postcard-sig">Elysa ✦</div>
+    </div>
+  </div></div>
+
+  <!-- 16 CORBEILLE -->
+  <div class="col"><div class="lbl">16 · Corbeille</div>
+  <div class="phone">
+    <div class="tb">
+      <div class="tb-l"><span class="back">‹</span><span class="tb-title">Corbeille</span></div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:20px;">
+      <div style="font-size:36px;">🗑</div>
+      <div style="font-size:14px;font-weight:700;color:var(--black);">Lettres supprimées</div>
+      <div style="font-size:9px;color:var(--muted);text-align:center;">Masquées uniquement pour toi. L'autre la verra toujours.</div>
+    </div>
+    <div class="list" style="flex:0 0 auto;">
+      <div class="card">
+        <div class="card-av g">G</div>
+        <div class="card-body">
+          <div class="card-row"><span class="card-name">Gabriel</span><span class="card-time">15 mai</span></div>
+          <div class="card-prev">"Lettre du 15 mai…"</div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+
+</div>
+
+<!-- ===== ROW 4 : ALBUM + LIGHTBOX ===== -->
+<div class="row">
+
+  <!-- 17 ALBUM PHOTO -->
+  <div class="col"><div class="lbl">17 · Album</div>
+  <div class="phone">
+    <div class="tb">
+      <div class="tb-l"><span class="back">‹</span><span class="tb-title">Notre Album</span></div>
+      <span style="font-size:20px;color:var(--black);font-weight:300;">+</span>
+    </div>
+    <div class="divider"></div>
+    <div class="album-grid">
+      <div class="album-cell">🌅</div>
+      <div class="album-cell">🌆</div>
+      <div class="album-cell">☕</div>
+      <div class="album-cell">✉️</div>
+      <div class="album-add">
+        <div class="album-add-icon">+</div>
+        <div class="album-add-txt">Ajouter</div>
+      </div>
+      <div class="album-cell" style="opacity:.3;">🌿</div>
+    </div>
+  </div></div>
+
+  <!-- 18 LIGHTBOX -->
+  <div class="col"><div class="lbl">18 · Lightbox</div>
+  <div class="phone" style="background:#111;">
+    <div class="tb" style="background:#111;">
+      <span style="font-size:18px;color:#FFF;">✕</span>
+    </div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;font-size:64px;">🌅</div>
+    <div style="padding:12px 16px;background:#111;">
+      <div style="font-size:9px;color:#888;margin-bottom:4px;">Envoyée par Elysa · 19 juin</div>
+      <div style="font-family:'EB Garamond',serif;font-style:italic;font-size:13px;color:#FFF;">"Ce coucher de soleil pour toi"</div>
+      <div style="display:flex;justify-content:space-between;margin-top:10px;">
+        <span style="font-size:20px;color:var(--terra);">♥</span>
+        <span style="font-size:20px;color:#FFF;">⬆</span>
+      </div>
+    </div>
+  </div></div>
+
+  <!-- 19 DRAWER MENU -->
+  <div class="col"><div class="lbl">19 · Drawer</div>
+  <div class="phone">
+    <div class="tb"><div class="tb-l"><span class="back">‹</span></div></div>
+    <div class="drawer-overlay">
+      <div class="drawer-side">
+        <div class="drawer-logo">Letters</div>
+        <div style="font-size:11px;font-weight:600;color:var(--black);">Elysa & Gabriel</div>
+        <div>
+          <div class="drawer-bar"><div class="drawer-bar-fill"></div></div>
+          <div class="drawer-bar-meta"><span>12 lettres</span><span>Niveau 3</span></div>
+        </div>
+        <div class="drawer-divider"></div>
+        <div class="drawer-section">Principal</div>
+        <div class="drawer-item"><span class="drawer-item-icon">📬</span>Boîte aux lettres</div>
+        <div class="drawer-item"><span class="drawer-item-icon">📮</span>Carte postale</div>
+        <div class="drawer-item"><span class="drawer-item-icon">💬</span>Questions</div>
+        <div class="drawer-divider"></div>
+        <div class="drawer-section">Fonctionnalités</div>
+        <div class="drawer-item"><span class="drawer-item-icon">📷</span>Notre album</div>
+        <div class="drawer-item"><span class="drawer-item-icon">✿</span>ABC Date</div>
+        <div class="drawer-item"><span class="drawer-item-icon">✨</span>Résumé IA</div>
+      </div>
+      <div class="drawer-rest"></div>
+    </div>
+  </div></div>
+
+  <!-- 20 PARAMÈTRES -->
+  <div class="col"><div class="lbl">20 · Paramètres</div>
+  <div class="phone">
+    <div class="tb">
+      <div class="s-title" style="font-size:22px;padding:0;">Paramètres</div>
+      <span style="font-size:16px;color:var(--muted);">✕</span>
+    </div>
+    <div class="settings-body">
+      <div class="settings-section">Mon profil</div>
+      <div class="settings-group">
+        <div class="settings-row"><span class="settings-key">Prénom</span><span class="settings-val">Gabriel</span></div>
+        <div class="settings-row"><span class="settings-key">Ville</span><span class="settings-val">Lille</span></div>
+      </div>
+      <div class="settings-section">Police</div>
+      <div class="settings-group">
+        <div class="settings-row">
+          <span class="settings-key" style="font-family:'EB Garamond',serif;font-style:italic;">Élégant</span>
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--black);display:inline-block;"></span>
+        </div>
+        <div class="settings-row"><span class="settings-key">Classique</span></div>
+      </div>
+      <div class="settings-section">Mon compte</div>
+      <div class="settings-group">
+        <div class="settings-row"><span class="settings-key">Email</span><span class="settings-val" style="font-size:8px;">gabriel@gmail.com</span></div>
+        <div class="settings-row"><span class="settings-key">Téléphone</span><span style="font-size:9px;color:var(--terra);">Ajouter</span></div>
+      </div>
+      <div class="btn-primary" style="margin-top:4px;">Sauvegarder</div>
+    </div>
+  </div></div>
+
+</div>
+
+<!-- ===== ROW 5 : MODALS ===== -->
+<div class="section-title">Modals & Panels</div>
+<div class="row">
+
+  <!-- 21 MODAL NOUVEAU SPACE -->
+  <div class="col"><div class="lbl">21 · Nouveau space</div>
+  <div class="phone">
+    <div style="background:var(--gray1);flex:1;display:flex;align-items:center;justify-content:center;padding:20px;">
+      <div class="modal">
+        <div class="modal-title">Écrire à quelqu'un</div>
+        <div class="modal-desc">Entre le code unique de la personne pour créer votre espace.</div>
+        <div class="field active" style="text-align:center;font-size:18px;font-weight:700;letter-spacing:.1em;">ELY-4</div>
+        <div class="modal-btns">
+          <div class="modal-btn cancel">Annuler</div>
+          <div class="modal-btn confirm">Créer ✦</div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+
+  <!-- 22 MODAL PROFIL -->
+  <div class="col"><div class="lbl">22 · Modal profil</div>
+  <div class="phone">
+    <div style="background:var(--gray1);flex:1;display:flex;align-items:center;justify-content:center;padding:20px;">
+      <div class="modal">
+        <div class="profile-av-big">G</div>
+        <div class="modal-title" style="text-align:center;">Mon profil</div>
+        <div class="field-label">Prénom</div>
+        <div class="field active">Gabriel</div>
+        <div class="field-label">Ville</div>
+        <div class="field">Lille, France</div>
+        <div style="background:var(--gray1);border-radius:12px;padding:10px;text-align:center;">
+          <div style="font-size:8px;color:var(--muted);margin-bottom:2px;">Mon code</div>
+          <div style="font-size:18px;font-weight:700;color:var(--black);letter-spacing:.06em;">GAB-3198</div>
+        </div>
+        <div class="modal-btns">
+          <div class="modal-btn cancel">Fermer</div>
+          <div class="modal-btn confirm">Sauver</div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+
+  <!-- 23 MODAL SUPPRIMER -->
+  <div class="col"><div class="lbl">23 · Supprimer</div>
+  <div class="phone">
+    <div style="background:var(--gray1);flex:1;display:flex;align-items:center;justify-content:center;padding:20px;">
+      <div class="modal">
+        <div style="font-size:32px;text-align:center;">🗑</div>
+        <div class="modal-title" style="text-align:center;">Supprimer cette lettre ?</div>
+        <div class="modal-desc" style="text-align:center;">Masquée uniquement pour toi. L'autre la verra toujours.</div>
+        <div class="modal-btns">
+          <div class="modal-btn cancel">Annuler</div>
+          <div class="modal-btn danger">Supprimer</div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+
+  <!-- 24 ACTION SHEET ESPACE -->
+  <div class="col"><div class="lbl">24 · Sheet espace</div>
+  <div class="phone">
+    <div class="sheet-overlay">
+      <div class="sheet">
+        <div class="sheet-handle"></div>
+        <div class="sheet-item">📦 Archiver l'espace</div>
+        <div class="sheet-item danger">🗑 Quitter l'espace</div>
+        <div class="sheet-item cancel">Annuler</div>
+      </div>
+    </div>
+  </div></div>
+
+  <!-- 25 ACTION SHEET LETTRE -->
+  <div class="col"><div class="lbl">25 · Sheet lettre</div>
+  <div class="phone">
+    <div class="sheet-overlay">
+      <div class="sheet">
+        <div class="sheet-handle"></div>
+        <div class="sheet-item">↩ Répondre à cette lettre</div>
+        <div class="sheet-item">⬆ Partager</div>
+        <div class="sheet-item danger">🗑 Supprimer</div>
+        <div class="sheet-item cancel">Annuler</div>
+      </div>
+    </div>
+  </div></div>
+
+  <!-- 26 PANEL QUESTION -->
+  <div class="col"><div class="lbl">26 · Question</div>
+  <div class="phone">
+    <div class="panel-overlay">
+      <div class="panel">
+        <div class="panel-handle"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="panel-title">✦ Question du jour</div>
+          <span style="color:var(--muted);font-size:14px;">✕</span>
+        </div>
+        <div class="panel-card">
+          <div class="panel-q">C'est quoi ton meilleur souvenir de nous deux ?</div>
+          <div class="panel-reply">Répondre →</div>
+        </div>
+        <div class="spicy-row">
+          <span class="spicy-txt">🌶 Mode spicy</span>
+          <div class="toggle"><div class="toggle-knob"></div></div>
+        </div>
+        <div style="font-size:9px;color:var(--terra);text-align:center;">Propose une question →</div>
+      </div>
+    </div>
+  </div></div>
+
+</div>
+
+<!-- ===== ROW 6 : PANELS + ANIM ===== -->
+<div class="row">
+
+  <!-- 27 PANEL HUMEUR -->
+  <div class="col"><div class="lbl">27 · Humeur</div>
+  <div class="phone">
+    <div class="panel-overlay">
+      <div class="panel">
+        <div class="panel-handle"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="panel-title">🌤 Humeur du jour</div>
+          <span style="color:var(--muted);font-size:14px;">✕</span>
+        </div>
+        <div style="font-size:10px;color:var(--muted);text-align:center;">Comment tu te sens aujourd'hui ?</div>
+        <div class="mood-grid">
+          <div class="mood-item on">😊</div><div class="mood-item">😍</div><div class="mood-item">😢</div><div class="mood-item">😤</div><div class="mood-item">😴</div>
+          <div class="mood-item">🥰</div><div class="mood-item">😮</div><div class="mood-item">🤩</div><div class="mood-item">😰</div><div class="mood-item">🤗</div>
+        </div>
+        <div class="mood-elysa">Humeur d'Elysa : 😍</div>
+        <div class="btn-primary" style="text-align:center;">Enregistrer</div>
+      </div>
+    </div>
+  </div></div>
+
+  <!-- 28 TUTORIEL -->
+  <div class="col"><div class="lbl">28 · Tutoriel</div>
+  <div class="phone">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:20px;">
+      <div style="background:var(--gray1);border-radius:16px;padding:16px;text-align:center;width:100%;">
+        <div style="font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;">3 sur 5</div>
+        <div style="font-size:14px;font-weight:700;color:var(--black);margin-bottom:6px;">Bouton Écrire</div>
+        <div style="font-size:9px;color:var(--muted);">Appuie ici pour écrire ta première lettre.</div>
+      </div>
+      <div style="font-size:28px;">↓</div>
+    </div>
+    <div class="ob-foot">
+      <div class="ob-dots"><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot on"></div><div class="ob-dot"></div><div class="ob-dot"></div></div>
+      <div class="btn-primary">Suivant →</div>
+    </div>
+  </div></div>
+
+  <!-- 29 ANIM ENVOI -->
+  <div class="col"><div class="lbl">29 · Envoi</div>
+  <div class="phone">
+    <div class="anim-body">
+      <div class="anim-stars">✦ ✦ ✦</div>
+      <div class="anim-emoji">✉️</div>
+      <div class="anim-title">Lettre envoyée ✦</div>
+      <div style="font-size:9px;color:var(--muted);margin-top:4px;">Elysa sera notifiée</div>
+    </div>
+    <div class="ob-foot">
+      <div class="btn-primary">Retour à la boîte</div>
+    </div>
+  </div></div>
+
+  <!-- 30 POPUP DÉBLOCAGE -->
+  <div class="col"><div class="lbl">30 · Déblocage</div>
+  <div class="phone">
+    <div class="popup-overlay">
+      <div class="popup">
+        <div style="display:flex;gap:6px;font-size:10px;color:var(--terra);justify-content:center;">✦ ✦ ✦</div>
+        <div class="popup-icon">🔓</div>
+        <div class="popup-title">Nouvelle feature !</div>
+        <div class="popup-desc">ABC Date 🗓 est maintenant disponible ! Continuez à vous écrire pour débloquer la suite.</div>
+        <div class="btn-primary" style="width:100%;text-align:center;margin-top:4px;">C'est parti ✦</div>
+      </div>
+    </div>
+  </div></div>
+
+</div>
+
+</body>
+</html>
