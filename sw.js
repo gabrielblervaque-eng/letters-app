@@ -6,8 +6,8 @@ self.addEventListener('push', e => {
   const title = data.title || 'Letters ✉';
   const options = {
     body: data.body || 'Tu as reçu une nouvelle lettre.',
-    icon: '/letters-app/icon-192.png',
-    badge: '/letters-app/icon-192.png',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
     vibrate: [200, 100, 200],
     data: { url: data.url || 'https://letters-app.xyz' },
     actions: [{ action: 'open', title: 'Lire la lettre →' }]
