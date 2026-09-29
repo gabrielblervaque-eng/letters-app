@@ -4,8 +4,8 @@
   "description": "Votre espace de correspondance",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F7F4F0",
-  "theme_color": "#C17A4A",
+  "background_color": "#F5F6F3",
+  "theme_color": "#426B57",
   "icons": [
     {
       "src": "/icon-192.png",
