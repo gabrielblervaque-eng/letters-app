@@ -1246,7 +1246,7 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid 
     <div style="width:36px;height:4px;background:var(--border-med);border-radius:99px;margin:12px auto 16px"></div>
     <button class="action-item" onclick="closeModal('m-space-menu');archiveSpace()">📦 Archiver l'espace</button>
     <button class="action-item" id="space-block-action" onclick="closeModal('m-space-menu');toggleBlockActiveSpace()">⛔ Bloquer ce contact</button>
-    <button class="action-item danger" onclick="closeModal('m-space-menu');confirmLeaveSpace()">🗑 Quitter l'espace</button>
+    <button class="action-item danger" onclick="closeModal('m-space-menu');confirmLeaveSpace()">🗑 Quitter définitivement l'espace</button>
     <button class="action-item subtle" onclick="closeModal('m-space-menu')">Annuler</button>
   </div>
 </div>
@@ -1855,6 +1855,11 @@ async function loadSpaces(){
     spaces=[...(s1||[]),...(s2||[])].filter((s,i,a)=>a.findIndex(x=>x.id===s.id)===i).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
     // Filtrer les espaces archivés par moi
     spaces=spaces.filter(s=>!(s.archived_by||[]).includes(me.id));
+    if(spaces.length){
+      const {data:departures,error:departureError}=await db.from('space_departures').select('space_id').in('space_id',spaces.map(s=>s.id));
+      if(departureError)console.warn('Space departure state unavailable:',departureError);
+      else {const closed=new Set((departures||[]).map(d=>d.space_id));spaces=spaces.filter(s=>!closed.has(s.id));}
+    }
   }catch(e){}
   let html='';
   for(const s of spaces){
@@ -1972,14 +1977,12 @@ async function archiveSpace(){
 
 async function confirmLeaveSpace(){
   if(!activeSpaceMenu)return;
-  if(!confirm('Quitter cet espace ? Tu ne pourras plus y accéder.'))return;
-  // Retirer l'user de l'espace (on le marque comme "quitté" via archived_by avec valeur spéciale)
-  const {data:s}=await db.from('spaces').select('archived_by').eq('id',activeSpaceMenu).single();
-  const cur=s?.archived_by||[];
-  if(!cur.includes(me.id))cur.push(me.id);
-  await db.from('spaces').update({archived_by:cur}).eq('id',activeSpaceMenu);
+  if(!confirm('Quitter définitivement cet espace ? Les nouveaux échanges seront arrêtés pour vous deux et aucun de vous ne pourra recréer cet espace avec le code.'))return;
+  const {error}=await db.from('space_departures').insert({space_id:activeSpaceMenu,departed_by:me.id});
+  if(error){toast('Impossible de quitter cet espace pour le moment. Réessaie.');return;}
   activeSpaceMenu=null;
-  toast('Espace quitté');
+  closeModal('m-space-menu');
+  toast('Espace quitté définitivement. Les nouveaux échanges sont arrêtés.');
   await loadSpaces();
 }
 async function showArchived(){
@@ -1989,6 +1992,10 @@ async function showArchived(){
     const {data:s2}=await db.from('spaces').select('*').eq('user2_id',me.id);
     spaces=[...(s1||[]),...(s2||[])].filter((s,i,a)=>a.findIndex(x=>x.id===s.id)===i);
     spaces=spaces.filter(s=>(s.archived_by||[]).includes(me.id));
+    if(spaces.length){
+      const {data:departures,error:departureError}=await db.from('space_departures').select('space_id').in('space_id',spaces.map(s=>s.id));
+      if(!departureError){const closed=new Set((departures||[]).map(d=>d.space_id));spaces=spaces.filter(s=>!closed.has(s.id));}
+    }
   }catch(e){}
   if(!spaces.length){toast('Aucun espace archivé');return;}
   let html='<div style="max-height:50vh;overflow-y:auto;margin-bottom:12px">';
@@ -2085,9 +2092,14 @@ async function createSpace(){
   const {data:e1}=await db.from('spaces').select('*').eq('user1_id',me.id).eq('user2_id',partner.id).maybeSingle();
   const {data:e2}=await db.from('spaces').select('*').eq('user1_id',partner.id).eq('user2_id',me.id).maybeSingle();
   const existing=e1||e2;
-  if(existing){btn.disabled=false;btn.textContent='Créer l\'espace';closeModal('m-new');openSpace(existing.id,partner.id,partner.name,partner.city||'—',existing.space_name||(me.name+' & '+partner.name));return;}
+  if(existing){
+    const {data:departures,error:departureError}=await db.from('space_departures').select('space_id').eq('space_id',existing.id);
+    if(departureError||departures?.length){err.textContent=departures?.length?'Cet espace a été quitté définitivement et ne peut pas être rejoint à nouveau.':'Impossible de vérifier le statut de cet espace. Réessaie plus tard.';err.classList.add('on');btn.disabled=false;btn.textContent='Créer l\'espace';return;}
+    btn.disabled=false;btn.textContent='Créer l\'espace';closeModal('m-new');openSpace(existing.id,partner.id,partner.name,partner.city||'—',existing.space_name||(me.name+' & '+partner.name));return;
+  }
   const sname=me.name+' & '+partner.name;
-  const {data:ns}=await db.from('spaces').insert({user1_id:me.id,user2_id:partner.id,space_name:sname,type:selectedSpaceType||'romantique'}).select().single();
+  const {data:ns,error:spaceError}=await db.from('spaces').insert({user1_id:me.id,user2_id:partner.id,space_name:sname,type:selectedSpaceType||'romantique'}).select().single();
+  if(spaceError||!ns){err.textContent='Cet espace a peut-être déjà été quitté et ne peut plus être recréé.';err.classList.add('on');btn.disabled=false;btn.textContent='Créer l\'espace';return;}
   // Insérer les activités ABC de base
   const ABC_BASE=[
     {letter:'A',activity:'Aller voir une expo'},{letter:'B',activity:'Balade en forêt'},
