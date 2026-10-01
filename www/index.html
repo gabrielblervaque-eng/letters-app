@@ -113,6 +113,8 @@ body{
 .sp-card:active{transform:scale(.97)}
 .sp-av{width:44px;height:44px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:16px;font-weight:700;color:var(--text);flex-shrink:0}
 .sp-info{flex:1;min-width:0}
+.sp-safety-action{border:1px solid #ead1d1;background:transparent;color:#9d4545;border-radius:999px;padding:7px 10px;font:500 11px var(--sans);white-space:nowrap;cursor:pointer;flex-shrink:0}
+.sp-safety-action:hover{background:#fbf2f2}
 .sp-name{font-size:15px;font-family:var(--sans);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
 .sp-meta{font-size:11px;color:var(--text3);margin-top:2px}
 .sp-badge{background:var(--a);color:#fff;font-size:11px;border-radius:20px;padding:2px 9px;font-weight:700;flex-shrink:0}
@@ -1872,6 +1874,7 @@ async function loadSpaces(){
       <div class="sp-av" style="background:${st.light};color:${st.accent};border:1.5px solid ${st.mid}">${pn.charAt(0).toUpperCase()}</div>
       <div class="sp-info"><div class="sp-name">${sname}</div><div class="sp-meta">${isBlocked?'Contact bloqué · toucher pour débloquer':(me.city||'—')+' ↔ '+pc}</div></div>
       ${unread?`<div class="sp-badge" style="background:${st.accent}">${unread}</div>`:''}
+      <button class="sp-safety-action" aria-label="${isBlocked?'Débloquer':'Bloquer'} ${pn}" onclick="event.stopPropagation();toggleBlockContact('${pid}')">${isBlocked?'Débloquer':'Bloquer'}</button>
       <button onclick="event.stopPropagation();openSpaceMenu('${sid}')" style="background:none;border:none;padding:8px;color:var(--text3);font-size:18px;cursor:pointer;line-height:1;flex-shrink:0">⋯</button>
     </div>`;
   }
@@ -1897,6 +1900,12 @@ async function openSpaceFromCard(sid,pid,pname,pcity,sname,stype){
     return;
   }
   openSpace(sid,pid,pname,pcity,sname,stype);
+}
+
+async function toggleBlockContact(userId){
+  const blocking=!blockedUserIds.has(userId);
+  if(blocking&&!confirm('Bloquer ce contact ? La conversation sera masquée et ses nouveaux messages ne seront pas acceptés.'))return;
+  await setUserBlocked(userId,blocking);
 }
 
 async function setUserBlocked(userId,blocked){
