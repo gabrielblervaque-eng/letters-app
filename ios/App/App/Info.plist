@@ -62,8 +62,10 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Letters utilise ta position pour mettre à jour ta ville automatiquement.</string>
+	<string>Letters utilise ta position lorsque l’app est ouverte pour suggérer ta ville et afficher la carte partagée. Ta position n’est pas suivie en arrière-plan.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Letters utilise ta position uniquement lorsque l’app est ouverte afin de proposer la mise à jour de ta ville.</string>
+	<string>Letters utilise ta position lorsque l’app est ouverte pour suggérer ta ville et afficher la carte partagée. Ta position n’est pas suivie en arrière-plan.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Letters utilise ta position lorsque l’app est ouverte pour suggérer ta ville et afficher la carte partagée. Ta position n’est pas suivie en arrière-plan.</string>
 </dict>
 </plist>

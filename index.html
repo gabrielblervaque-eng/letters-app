@@ -1078,6 +1078,7 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid 
   <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:500px;padding:8px 0 calc(16px + env(safe-area-inset-bottom))">
     <div style="width:36px;height:4px;background:var(--border-med);border-radius:99px;margin:12px auto 16px"></div>
     <button class="action-item danger" onclick="closeModal('m-letter-menu');askDeleteCurrent()">🗑 Supprimer cette lettre</button>
+    <button class="action-item" onclick="closeModal('m-letter-menu');openReportCurrent()">⚑ Signaler cette lettre</button>
     <button class="action-item" onclick="closeModal('m-letter-menu');openTrash()">📂 Voir la corbeille</button>
     <button class="action-item subtle" onclick="closeModal('m-letter-menu')">Annuler</button>
   </div>
@@ -1139,6 +1140,7 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid 
     <div class="drawer-section">Espace</div>
     <button class="drawer-item" onclick="closeDrawer();openTrash()"><span class="drawer-icon">🗑</span><span>Corbeille</span></button>
     <button class="drawer-item" onclick="openRename()"><span class="drawer-icon">✏️</span><span>Renommer l'espace</span></button>
+    <button class="drawer-item" onclick="blockCurrentPartner()"><span class="drawer-icon">⛔</span><span>Bloquer ce contact</span></button>
     <button class="drawer-item" onclick="openSettings()"><span class="drawer-icon">⚙</span><span>Paramètres</span></button>
     <div class="drawer-bottom">
       <div class="drawer-user" onclick="openProfil()">
@@ -1228,11 +1230,22 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid 
   </div>
 </div>
 
+<div class="modal" id="m-report" onclick="maybeClose('m-report',event)">
+  <div class="modal-card">
+    <div class="modal-title">Signaler cette lettre</div>
+    <div class="modal-sub">Le signalement sera transmis à l’équipe Letters pour examen.</div>
+    <div class="fld"><label>Motif</label><select id="report-reason" style="width:100%;border:1px solid var(--border-med);border-radius:var(--rs);padding:12px;font-size:15px;background:var(--bg);color:var(--text);font-family:var(--sans)"><option value="harassment">Harcèlement ou menace</option><option value="inappropriate">Contenu inapproprié</option><option value="unwanted">Contact non souhaité</option><option value="other">Autre motif</option></select></div>
+    <div class="fld"><label>Précisions (facultatif)</label><textarea id="report-details" maxlength="1000" rows="3" placeholder="Décris brièvement le problème" style="width:100%;border:1px solid var(--border-med);border-radius:var(--rs);padding:12px;font-size:14px;background:var(--bg);color:var(--text);font-family:var(--sans);resize:vertical"></textarea></div>
+    <div class="modal-row"><button class="btn g" onclick="closeModal('m-report')">Annuler</button><button class="btn p" onclick="submitContentReport()">Envoyer le signalement</button></div>
+  </div>
+</div>
+
 <!-- ACTION SHEET ESPACE -->
 <div class="modal" id="m-space-menu" onclick="maybeClose('m-space-menu',event)" style="align-items:flex-end">
   <div style="background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:500px;padding:8px 0 calc(16px + env(safe-area-inset-bottom))">
     <div style="width:36px;height:4px;background:var(--border-med);border-radius:99px;margin:12px auto 16px"></div>
     <button class="action-item" onclick="closeModal('m-space-menu');archiveSpace()">📦 Archiver l'espace</button>
+    <button class="action-item" id="space-block-action" onclick="closeModal('m-space-menu');toggleBlockActiveSpace()">⛔ Bloquer ce contact</button>
     <button class="action-item danger" onclick="closeModal('m-space-menu');confirmLeaveSpace()">🗑 Quitter l'espace</button>
     <button class="action-item subtle" onclick="closeModal('m-space-menu')">Annuler</button>
   </div>
@@ -1338,6 +1351,7 @@ const SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6I
 const db=supabase.createClient(SU,SK);
 
 let me=null,cs=null,lc=0,cq=null,rtCh=[],deleteId=null,isReset=false;
+let blockedUserIds=new Set();
 const MAX=50,LK={humeur:5,question:8,playlist:12,album:15,abc:15,resume:20};
 const SPACE_TYPES={
   romantique:{label:'Romantique',emoji:'💑',accent:'#C17A4A',light:'#F5EDE3',mid:'#E8C4A0',gradient:'linear-gradient(135deg,#F5EDE3,#EDD9C0)',abc:'ABC Date',spicy:true},
@@ -1835,6 +1849,9 @@ async function loadSpaces(){
   try{
     const {data:s1}=await db.from('spaces').select('*').eq('user1_id',me.id).order('created_at',{ascending:false});
     const {data:s2}=await db.from('spaces').select('*').eq('user2_id',me.id).order('created_at',{ascending:false});
+    const {data:blocks,error:blockError}=await db.from('user_blocks').select('blocked_id').eq('blocker_id',me.id);
+    if(blockError){console.warn('Block list unavailable until the safety migration is deployed:',blockError);blockedUserIds=new Set();}
+    else blockedUserIds=new Set((blocks||[]).map(b=>b.blocked_id));
     spaces=[...(s1||[]),...(s2||[])].filter((s,i,a)=>a.findIndex(x=>x.id===s.id)===i).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
     // Filtrer les espaces archivés par moi
     spaces=spaces.filter(s=>!(s.archived_by||[]).includes(me.id));
@@ -1850,9 +1867,10 @@ async function loadSpaces(){
     const sid=s.id;
     const stype=s.type||'romantique';
     const st=SPACE_TYPES[stype]||SPACE_TYPES.romantique;
-    html+=`<div class="sp-card" style="position:relative;border-left:3px solid ${st.accent}" onclick="openSpace('${sid}','${pid}','${pn}','${pc}','${sname.replace(/'/g,"\\'")}','${stype}')">
+    const isBlocked=blockedUserIds.has(pid);
+    html+=`<div class="sp-card" style="position:relative;border-left:3px solid ${st.accent}${isBlocked?';opacity:.72':''}" onclick="openSpaceFromCard('${sid}','${pid}','${pn}','${pc}','${sname.replace(/'/g,"\\'")}','${stype}')">
       <div class="sp-av" style="background:${st.light};color:${st.accent};border:1.5px solid ${st.mid}">${pn.charAt(0).toUpperCase()}</div>
-      <div class="sp-info"><div class="sp-name">${sname}</div><div class="sp-meta">${me.city||'—'} ↔ ${pc}</div></div>
+      <div class="sp-info"><div class="sp-name">${sname}</div><div class="sp-meta">${isBlocked?'Contact bloqué · toucher pour débloquer':(me.city||'—')+' ↔ '+pc}</div></div>
       ${unread?`<div class="sp-badge" style="background:${st.accent}">${unread}</div>`:''}
       <button onclick="event.stopPropagation();openSpaceMenu('${sid}')" style="background:none;border:none;padding:8px;color:var(--text3);font-size:18px;cursor:pointer;line-height:1;flex-shrink:0">⋯</button>
     </div>`;
@@ -1862,10 +1880,76 @@ async function loadSpaces(){
 }
 
 let activeSpaceMenu=null;
+let spaceMenuPartnerId=null;
 
-function openSpaceMenu(sid){
+async function openSpaceMenu(sid){
   activeSpaceMenu=sid;
+  const {data:s}=await db.from('spaces').select('user1_id,user2_id').eq('id',sid).single();
+  spaceMenuPartnerId=s?.user1_id===me.id?s?.user2_id:s?.user1_id;
+  const action=document.getElementById('space-block-action');
+  if(action)action.textContent=blockedUserIds.has(spaceMenuPartnerId)?'✓ Débloquer ce contact':'⛔ Bloquer ce contact';
   document.getElementById('m-space-menu').classList.add('on');
+}
+
+async function openSpaceFromCard(sid,pid,pname,pcity,sname,stype){
+  if(blockedUserIds.has(pid)){
+    if(confirm('Débloquer '+pname+' pour reprendre les échanges ?'))await setUserBlocked(pid,false);
+    return;
+  }
+  openSpace(sid,pid,pname,pcity,sname,stype);
+}
+
+async function setUserBlocked(userId,blocked){
+  if(!me||!userId||userId===me.id)return;
+  const result=blocked
+    ?await db.from('user_blocks').upsert({blocker_id:me.id,blocked_id:userId},{onConflict:'blocker_id,blocked_id'})
+    :await db.from('user_blocks').delete().eq('blocker_id',me.id).eq('blocked_id',userId);
+  if(result.error){toast('Action impossible pour le moment. Réessaie.');return;}
+  if(blocked)blockedUserIds.add(userId);else blockedUserIds.delete(userId);
+  if(blocked&&cs?.partner_id===userId){
+    rtCh.forEach(c=>db.removeChannel(c));rtCh=[];cs=null;
+    document.getElementById('app').classList.remove('on');
+    document.getElementById('letter-view').classList.remove('on');
+    document.getElementById('compose-view').classList.remove('on');
+    document.getElementById('home').classList.add('on');
+  }
+  toast(blocked?'Contact bloqué. Les nouveaux messages seront refusés.':'Contact débloqué.');
+  await loadSpaces();
+}
+
+async function toggleBlockActiveSpace(){
+  if(!spaceMenuPartnerId)return;
+  const blocking=!blockedUserIds.has(spaceMenuPartnerId);
+  if(blocking&&!confirm('Bloquer ce contact ? La conversation sera masquée et ses nouveaux messages ne seront pas acceptés.'))return;
+  await setUserBlocked(spaceMenuPartnerId,blocking);
+}
+
+async function blockCurrentPartner(){
+  closeDrawer();
+  if(!cs?.partner_id)return;
+  if(!confirm('Bloquer ce contact ? La conversation sera masquée et ses nouveaux messages ne seront pas acceptés.'))return;
+  await setUserBlocked(cs.partner_id,true);
+}
+
+function openReportCurrent(){
+  if(!currentLetter||currentLetter.from_id===me?.id){toast('Tu peux signaler une lettre reçue.');return;}
+  document.getElementById('report-reason').value='harassment';
+  document.getElementById('report-details').value='';
+  document.getElementById('m-report').classList.add('on');
+}
+
+async function submitContentReport(){
+  if(!me||!currentLetter||currentLetter.from_id===me.id)return;
+  const button=document.querySelector('#m-report .btn.p');
+  if(button){button.disabled=true;button.textContent='Envoi…';}
+  const {error}=await db.from('content_reports').insert({
+    reporter_id:me.id,reported_user_id:currentLetter.from_id,letter_id:currentLetter.id,
+    reason:document.getElementById('report-reason').value,
+    details:document.getElementById('report-details').value.trim()
+  });
+  if(button){button.disabled=false;button.textContent='Envoyer le signalement';}
+  if(error){toast('Le signalement n’a pas pu être envoyé. Réessaie.');return;}
+  closeModal('m-report');toast('Signalement transmis à l’équipe Letters.');
 }
 
 async function archiveSpace(){
@@ -2548,6 +2632,7 @@ function closeCompose(){
 }
 
 async function sendLetter(){
+  if(blockedUserIds.has(cs?.partner_id)){toast('Ce contact est bloqué. Débloque-le pour envoyer une lettre.');return;}
   const editor=document.getElementById('cv-editor');
   let bodyHtml=editor?.innerHTML||'';
   const bodyText=editor?.innerText?.trim()||'';
@@ -4632,6 +4717,7 @@ function adjustPCCrop(val){
   if(img)img.style.objectPosition=`center ${val}%`;
 }
 async function sendPostcard(){
+  if(blockedUserIds.has(cs?.partner_id)){toast('Ce contact est bloqué. Débloque-le pour envoyer une carte.');return;}
   const editor=document.getElementById('pc-message');
   const bodyHtml=editor?.innerHTML||'';
   const bodyText=editor?.innerText?.trim()||'';
@@ -4642,10 +4728,11 @@ async function sendPostcard(){
     const path=`${me.id}/${Date.now()}-pc.jpg`;
     const {data}=await db.storage.from('photos').upload(path,compressed,{contentType:'image/jpeg'});
     if(!data)throw new Error('Upload failed');
-    await db.from('letters').insert({
+    const {error:sendError}=await db.from('letters').insert({
       from_id:me.id,to_id:cs.partner_id,from_name:me.name,
       body:bodyHtml,photo_url:path,has_photo:true,hearts:0,type:'postcard'
     });
+    if(sendError)throw sendError;
     btn.textContent='Envoyer ↑';
     closePostcard();
     toast('Carte postale envoyée 📮');
@@ -4879,19 +4966,23 @@ function setNotifUI(enabled){
 
 async function askDeleteAccount(){
   if(!confirm('Supprimer définitivement ton compte et toutes tes données ? Cette action est irréversible.'))return;
-  if(!confirm('Dernière confirmation — tout sera effacé : lettres, photos, profil.'))return;
+  if(!confirm('Dernière confirmation : ton compte, tes lettres, ton profil et tes photos seront supprimés définitivement.'))return;
   try{
-    const uid=me.id;
-    await db.from('letters').delete().eq('user_id',uid);
-    await db.from('profiles').delete().eq('id',uid);
+    const {data:{session}}=await db.auth.getSession();
+    if(!session?.access_token)throw new Error('Session invalide');
+    const {data,error}=await db.functions.invoke('delete-account',{body:{},headers:{Authorization:`Bearer ${session.access_token}`}});
+    if(error)throw error;
+    if(!data?.ok)throw new Error(data?.error||'Suppression incomplète');
     await db.auth.signOut();
     toast('Compte supprimé.');
     me=null;cs=null;
+    blockedUserIds=new Set();
     document.getElementById('app').classList.remove('on');
     document.getElementById('home').classList.remove('on');
     show('s-login');
   }catch(e){
-    toast('Erreur lors de la suppression. Contacte hello@letters-app.xyz');
+    console.error('Account deletion failed:',e);
+    toast(e.message||'La suppression a échoué. Réessaie ou contacte hello@letters-app.xyz.');
   }
 }
 
