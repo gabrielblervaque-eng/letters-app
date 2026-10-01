@@ -202,7 +202,6 @@ body{
 .tb-name{font-family:var(--sans);font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
 .tb-sub{font-size:10px;color:var(--text3);letter-spacing:.02em}
 .tb-write{background:var(--a);color:#fff;border:none;border-radius:20px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);white-space:nowrap}
-.tb-menu{font-size:20px;cursor:pointer;background:none;border:none;color:var(--text3);min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
 
 /* ---- MAILBOX ---- */
 .app-body{flex:1;overflow-y:auto;background:var(--bg);-webkit-overflow-scrolling:touch;padding:12px 16px}
@@ -497,7 +496,7 @@ input, textarea, select{font-size:max(16px,1em) !important}
 .app-body,.home-body,.modal-card,.drawer-panel,.settings-panel{-webkit-overflow-scrolling:touch}
 .home{height:100dvh}
 .scr{min-height:100dvh;height:auto}
-.tb-back,.tb-menu,.eye-btn{min-width:44px;min-height:44px}
+.tb-back,.eye-btn{min-width:44px;min-height:44px}
 .drawer-item{min-height:48px}
 .mood-chip{min-height:60px}
 button,a{touch-action:manipulation}
@@ -821,7 +820,6 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid 
       <div class="tb-name" id="tb-name">—</div>
       <div class="tb-sub" id="tb-sub">—</div>
     </div>
-    <button class="tb-menu" onclick="openSettings()">☰</button>
   </div>
   <!-- Barre de sélection -->
   <div id="selection-bar" style="display:none;position:sticky;top:0;background:var(--a);color:#fff;padding:10px 16px;align-items:center;justify-content:space-between;z-index:10;flex-shrink:0">
