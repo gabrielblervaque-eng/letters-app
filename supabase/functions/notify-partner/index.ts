@@ -67,9 +67,8 @@ Deno.serve(async (req) => {
       title = `${senderName} a choisi son humeur`;
       body = `${emoji} ${label}`;
     } else {
-      const preview = typeof payload.preview === 'string' ? payload.preview.trim().slice(0, 100) : '';
-      title = `Une lettre de ${senderName} ✉`;
-      body = preview || 'Tu as reçu une nouvelle lettre.';
+      title = `Un courrier de ${senderName} t’attend ✉`;
+      body = 'Ouvre Letters pour le lire.';
     }
 
     const { data: registration, error: registrationError } = await admin.from('push_subscriptions')
