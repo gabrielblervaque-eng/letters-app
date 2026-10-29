@@ -1327,7 +1327,7 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid 
     </div>
     <div><div class="set-sec">Notifications</div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">
-        <span style="font-size:14px;color:var(--text2)">Nouvelle lettre reçue</span>
+        <span style="font-size:14px;color:var(--text2)">Courriers et humeurs</span>
         <button id="notif-toggle" onclick="toggleNotifications()" style="width:48px;height:28px;border-radius:14px;border:none;cursor:pointer;background:var(--border-med);position:relative;transition:background .2s">
           <span id="notif-thumb" style="position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span>
         </button>
@@ -1339,6 +1339,17 @@ button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid 
         <a href="https://letters-app.xyz/privacy" target="_blank" style="font-size:13px;color:var(--text2);text-decoration:none;display:flex;align-items:center;gap:6px">🔒 Politique de confidentialité</a>
         <button onclick="askDeleteAccount()" style="background:none;border:none;font-size:13px;color:#A32D2D;cursor:pointer;text-align:left;padding:0;font-family:var(--sans)">🗑 Supprimer mon compte et mes données</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="m-push-permission" onclick="maybeClose('m-push-permission',event)">
+  <div class="modal-card" style="align-self:center;border-radius:24px;max-width:380px;margin:20px">
+    <div class="modal-title">Ne rate plus ses courriers</div>
+    <div class="modal-sub">Letters peut afficher une bannière quand ton/ta partenaire t’envoie une lettre ou partage son humeur. Tu peux désactiver les notifications à tout moment dans les réglages de l’iPhone.</div>
+    <div class="modal-row">
+      <button class="btn g" onclick="dismissPushPrompt()">Plus tard</button>
+      <button class="btn p" onclick="enableNotificationsFromPrompt()">Activer</button>
     </div>
   </div>
 </div>
@@ -2765,7 +2776,7 @@ async function sendLetter(){
   // Marquer questions cochées comme répondues
   const answeredIds=getSelectedBoiteIds();
   for(const id of answeredIds){await markBoiteAnswered(id);}
-  sendPushToPartner(bodyText);
+  sendPushToPartner();
   photoFiles=[];
   inlinePhotoFiles={};
   renderPhotoPreviews();
@@ -4430,7 +4441,7 @@ async function initPWA(){
   }catch(e){console.warn('PWA init failed:',e);}
 }
 
-async function sendPushToPartner(letterBody){
+async function sendPushToPartner(){
   if(!cs||!me)return;
   // Email notification via Resend
   try{
@@ -4448,7 +4459,7 @@ async function sendPushToPartner(letterBody){
       });
     }
   }catch(e){console.warn('Email notification failed:',e);}
-  await notifyPartner('letter',{preview:letterBody.substring(0,100)});
+  await notifyPartner('letter');
 }
 
 async function notifyPartner(kind,details={}){
@@ -4717,6 +4728,7 @@ async function sendPostcard(){
     btn.textContent='Envoyer ↑';
     closePostcard();
     toast('Carte postale envoyée 📮');
+    notifyPartner('letter');
     await loadLetters();
   }catch(e){
     btn.disabled=false;btn.textContent='Envoyer ↑';
@@ -4878,16 +4890,54 @@ function skipTuto(){
 // NOTIFICATIONS PUSH (APNs via Capacitor)
 let notifEnabled=false;
 let pushListenersReady=false;
+let notifPromptOpen=false;
+
+function notifStorageKey(kind){return 'ltrs_push_'+kind+'_'+(me?.id||'unknown');}
+
+function dismissPushPrompt(){
+  try{localStorage.setItem(notifStorageKey('prompted'),'1');}catch(e){}
+  notifPromptOpen=false;
+  closeModal('m-push-permission');
+}
+
+async function enableNotificationsFromPrompt(){
+  try{localStorage.setItem(notifStorageKey('prompted'),'1');localStorage.removeItem(notifStorageKey('disabled'));}catch(e){}
+  notifPromptOpen=false;
+  closeModal('m-push-permission');
+  await registerPush(true,true);
+}
 
 async function initNotifications(){
   try{
-    if(!window.Capacitor||!window.Capacitor.isNativePlatform())return;
+    if(!window.Capacitor||!window.Capacitor.isNativePlatform()||!me?.id)return;
     const {PushNotifications}=window.Capacitor.Plugins;
     if(!PushNotifications)return;
-    const {data:row}=await db.from('push_subscriptions').select('apns_token').eq('user_id',me.id).single();
-    if(row&&row.apns_token){setNotifUI(true);}else{setNotifUI(false);}
-  }catch(e){setNotifUI(false);}
+    if(localStorage.getItem(notifStorageKey('disabled'))==='1'){setNotifUI(false);return;}
+    const {receive}=await PushNotifications.checkPermissions();
+    const {data:row,error}=await db.from('push_subscriptions').select('apns_token').eq('user_id',me.id).maybeSingle();
+    if(error)console.warn('Push registration lookup failed:',error);
+    if(receive==='granted'){
+      setNotifUI(!!row?.apns_token);
+      await registerPush(false,false);
+      return;
+    }
+    setNotifUI(false);
+    if(receive==='prompt'&&localStorage.getItem(notifStorageKey('prompted'))!=='1'&&!notifPromptOpen){
+      notifPromptOpen=true;
+      setTimeout(()=>{
+        if(me?.id&&document.getElementById('home')?.classList.contains('on'))document.getElementById('m-push-permission')?.classList.add('on');
+        else notifPromptOpen=false;
+      },650);
+    }else if(receive==='denied'){
+      const status=document.getElementById('notif-status');
+      if(status)status.textContent='Autorisation refusée. Active les notifications de Letters dans les Réglages de l’iPhone.';
+    }
+  }catch(e){console.warn('Push notification initialization failed:',e);setNotifUI(false);}
 }
+
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible'&&me?.id&&document.getElementById('home')?.classList.contains('on'))initNotifications();
+});
 
 async function toggleNotifications(){
   if(!window.Capacitor||!window.Capacitor.isNativePlatform()){
@@ -4896,16 +4946,20 @@ async function toggleNotifications(){
     return;
   }
   if(notifEnabled){
-    await db.from('push_subscriptions').delete().eq('user_id',me.id);
+    try{localStorage.setItem(notifStorageKey('disabled'),'1');}catch(e){}
+    const {error}=await db.from('push_subscriptions').delete().eq('user_id',me.id);
+    if(error){toast('Impossible de désactiver les notifications. Réessaie.');return;}
     setNotifUI(false);
     toast('Notifications désactivées');
   }else{
-    await registerPush();
+    try{localStorage.removeItem(notifStorageKey('disabled'));localStorage.setItem(notifStorageKey('prompted'),'1');}catch(e){}
+    await registerPush(true,true);
   }
 }
 
-async function registerPush(){
+async function registerPush(requestPermission=true,showFeedback=false){
   try{
+    if(!me?.id)throw new Error('Compte Letters indisponible.');
     const {PushNotifications}=window.Capacitor.Plugins;
     if(!PushNotifications)throw new Error('Module de notifications indisponible.');
     if(!pushListenersReady){
@@ -4916,8 +4970,9 @@ async function registerPush(){
           if(st)st.textContent="L’iPhone n’a pas pu être enregistré. Réessaie.";
           return;
         }
+        try{localStorage.removeItem(notifStorageKey('disabled'));}catch(e){}
         setNotifUI(true);
-        toast('Notifications activées ✦');
+        if(showFeedback)toast('Notifications activées ✦');
       });
       await PushNotifications.addListener('registrationError',()=>{
         const st=document.getElementById('notif-status');
@@ -4925,10 +4980,11 @@ async function registerPush(){
       });
       pushListenersReady=true;
     }
-    const perm=await PushNotifications.requestPermissions();
+    let perm=await PushNotifications.checkPermissions();
+    if(requestPermission&&perm.receive!=='granted')perm=await PushNotifications.requestPermissions();
     if(perm.receive!=='granted'){
       const st=document.getElementById('notif-status');
-      if(st)st.textContent="Permission refusée. Active les notifications dans les Réglages iOS.";
+      if(st)st.textContent="Autorisation refusée. Active les notifications de Letters dans les Réglages de l’iPhone.";
       return;
     }
     await PushNotifications.register();
@@ -4947,7 +5003,7 @@ function setNotifUI(enabled){
   if(enabled){
     toggle.style.background='var(--a)';
     thumb.style.left='23px';
-    if(status)status.textContent='Activées — tu seras notifié·e à chaque lettre.';
+    if(status)status.textContent='Activées — courriers et humeurs partagées.';
   }else{
     toggle.style.background='var(--border-med)';
     thumb.style.left='3px';
