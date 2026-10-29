@@ -3364,9 +3364,12 @@ async function loadMoods(){
 
 async function pickMood(el,emoji,label){
   document.querySelectorAll('.mood-chip').forEach(c=>c.classList.remove('sel'));
+  const updatedAt=new Date().toISOString();
+  const {error}=await db.from('moods').upsert({user_id:me.id,emoji,label,updated_at:updatedAt},{onConflict:'user_id'});
+  if(error){toast('Ton humeur n’a pas pu être partagée. Réessaie.');return;}
   el.classList.add('sel');
-  lastMoods.me={user_id:me.id,emoji,label,updated_at:new Date().toISOString()};
-  await db.from('moods').upsert({user_id:me.id,emoji,label,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+  lastMoods.me={user_id:me.id,emoji,label,updated_at:updatedAt};
+  notifyPartner('mood',{emoji,label});
   toast('Humeur partagée 🌤');
 }
 
@@ -4420,47 +4423,11 @@ function setupRT(){
 }
 
 // PWA
-const VAPID_PUBLIC='BFn82_vBeGasQYtPIrvRwCjezcTk-44o9KYX9UZdauSTRtfHiaYerCl-UzrLD9bPNYlSmpmHTtVgCvNGnMI6N24';
-
 async function initPWA(){
   if(!('serviceWorker' in navigator))return;
   try{
-    const reg=await navigator.serviceWorker.register('/sw.js');
-    // Demander permission et s'abonner aux push
-    if('PushManager' in window){
-      const perm=await Notification.requestPermission();
-      if(perm==='granted'){
-        await subscribeToPush(reg);
-      }
-    }
+    await navigator.serviceWorker.register('/sw.js');
   }catch(e){console.warn('PWA init failed:',e);}
-}
-
-async function subscribeToPush(reg){
-  try{
-    // Vérifier si déjà abonné
-    let sub=await reg.pushManager.getSubscription();
-    if(!sub){
-      sub=await reg.pushManager.subscribe({
-        userVisibleOnly:true,
-        applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC)
-      });
-    }
-    // Stocker en BDD
-    await db.from('push_subscriptions').upsert({
-      user_id:me.id,
-      subscription:sub.toJSON()
-    },{onConflict:'user_id'});
-  }catch(e){console.warn('Push subscribe failed:',e);}
-}
-
-function urlBase64ToUint8Array(base64String){
-  const padding='='.repeat((4-base64String.length%4)%4);
-  const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');
-  const rawData=window.atob(base64);
-  const outputArray=new Uint8Array(rawData.length);
-  for(let i=0;i<rawData.length;++i)outputArray[i]=rawData.charCodeAt(i);
-  return outputArray;
 }
 
 async function sendPushToPartner(letterBody){
@@ -4481,20 +4448,15 @@ async function sendPushToPartner(letterBody){
       });
     }
   }catch(e){console.warn('Email notification failed:',e);}
-  // Push notification (si dispo)
+  await notifyPartner('letter',{preview:letterBody.substring(0,100)});
+}
+
+async function notifyPartner(kind,details={}){
+  if(!cs||!me)return;
   try{
-    const {data}=await db.from('push_subscriptions').select('subscription').eq('user_id',cs.partner_id).single();
-    if(!data?.subscription)return;
-    await fetch('/api/push',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        subscription:data.subscription,
-        title:`Lettre de ${me.name} ✉`,
-        body:letterBody.substring(0,80)+(letterBody.length>80?'...':'')
-      })
-    });
-  }catch(e){console.warn('Push send failed:',e);}
+    const {error}=await db.functions.invoke('notify-partner',{body:{kind,space_id:cs.space_id,...details}});
+    if(error)throw error;
+  }catch(e){console.warn('iPhone notification could not be sent:',e);}
 }
 
 
@@ -4915,6 +4877,7 @@ function skipTuto(){
 
 // NOTIFICATIONS PUSH (APNs via Capacitor)
 let notifEnabled=false;
+let pushListenersReady=false;
 
 async function initNotifications(){
   try{
@@ -4944,6 +4907,24 @@ async function toggleNotifications(){
 async function registerPush(){
   try{
     const {PushNotifications}=window.Capacitor.Plugins;
+    if(!PushNotifications)throw new Error('Module de notifications indisponible.');
+    if(!pushListenersReady){
+      await PushNotifications.addListener('registration',async(token)=>{
+        const {error}=await db.from('push_subscriptions').upsert({user_id:me.id,apns_token:token.value,subscription:{}},{onConflict:'user_id'});
+        if(error){
+          const st=document.getElementById('notif-status');
+          if(st)st.textContent="L’iPhone n’a pas pu être enregistré. Réessaie.";
+          return;
+        }
+        setNotifUI(true);
+        toast('Notifications activées ✦');
+      });
+      await PushNotifications.addListener('registrationError',()=>{
+        const st=document.getElementById('notif-status');
+        if(st)st.textContent="Erreur d'enregistrement.";
+      });
+      pushListenersReady=true;
+    }
     const perm=await PushNotifications.requestPermissions();
     if(perm.receive!=='granted'){
       const st=document.getElementById('notif-status');
@@ -4951,15 +4932,6 @@ async function registerPush(){
       return;
     }
     await PushNotifications.register();
-    PushNotifications.addListener('registration',async(token)=>{
-      await db.from('push_subscriptions').upsert({user_id:me.id,apns_token:token.value,subscription:{}},{onConflict:'user_id'});
-      setNotifUI(true);
-      toast('Notifications activées ✦');
-    });
-    PushNotifications.addListener('registrationError',(err)=>{
-      const st=document.getElementById('notif-status');
-      if(st)st.textContent="Erreur d'enregistrement.";
-    });
   }catch(e){
     const st=document.getElementById('notif-status');
     if(st)st.textContent='Erreur : '+e.message;
